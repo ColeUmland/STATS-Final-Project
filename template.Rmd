@@ -1,7 +1,7 @@
 ---
 title: "Super Awesome Project Template"
 output: word_document
-names: 
+names: "Caleb Bekkum, Luke Spika, Cole Umland, Charlie Wiegel"
 date: "2025-04-11"
 ---
 
