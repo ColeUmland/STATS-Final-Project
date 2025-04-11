@@ -27,7 +27,7 @@ test
 
 ```
 
-## Section Four
+## Section Four Charlie Wiegel
 
 ```{r student4}
 
