@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Section One
 
 ```{r Caleb Bekkum}
-2 + 2
+
 ```
 
 ## Section Two
