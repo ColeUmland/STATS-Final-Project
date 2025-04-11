@@ -23,7 +23,7 @@ test
 
 ## Section Three
 
-```{r ColeUmland}
+```{r Cole Umland}
 
 ```
 
