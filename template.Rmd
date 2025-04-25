@@ -10,7 +10,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Section One
-
+Genius API info 
+Client ID: r8BXdSiDmw9qfMoxh2S3f1g4AtvDaPf8XD-TWjkO77sc_hvsglOutM9Pl67I67Tr
+Client Secret : pvEdzTUfKqtLbjv0qdxBJrqs5Hj1JQlhf4ICcQPWp3Zfo5j7uO88_34UWDbmT5a38wZP9lrTksDX4r8csgZsVA
+Client Access Token: BoaVCPyQtW90wUPpm3lPVgm1b5AJGB0BIBvG1UO9dj473mlajOuyvJ1hrN0Dvw9G
+Nickname : Luke5pika
 
 ```{r}
 # This code chunk is for setting up access and web-scraping song info from the Spotify API
