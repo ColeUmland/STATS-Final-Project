@@ -17,6 +17,7 @@ Client Access Token: BoaVCPyQtW90wUPpm3lPVgm1b5AJGB0BIBvG1UO9dj473mlajOuyvJ1hrN0
 Nickname : Luke5pika
 
 ```{r}
+
 # This code chunk is for setting up access and web-scraping song info from the Spotify API
 
 library(httr)
@@ -60,8 +61,16 @@ search_song <- function(title, artist, token) {
 # Function to get lyrics
 get_lyrics <- function(url) {
   page <- read_html(url)
-  lyrics_nodes <- html_nodes(page, ".Lyrics__Container-sc-1ynbvzw-6, div.lyrics")
-  lyrics <- paste(html_text(lyrics_nodes, trim = TRUE), collapse = "\n")
+  lyrics_nodes <- html_elements(page, '[data-lyrics-container="true"]')
+  
+  if (length(lyrics_nodes) == 0) {
+    lyrics_nodes <- html_elements(page, 'div.lyrics')
+  }
+  
+  lyrics <- lyrics_nodes %>% 
+    html_text(trim = TRUE) %>% 
+    paste(collapse = "\n")
+  
   return(lyrics)
 }
 
