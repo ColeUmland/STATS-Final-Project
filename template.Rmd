@@ -12,8 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Section One
 
 
-```{r Caleb Bekkum}
-
+```{r}
+# This code chunk is for setting up access and web-scraping song info from the Spotify API
 ```
 
 ## Section Two
