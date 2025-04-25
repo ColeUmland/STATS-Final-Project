@@ -18,6 +18,63 @@ Nickname : Luke5pika
 
 ```{r}
 # This code chunk is for setting up access and web-scraping song info from the Spotify API
+
+library(httr)
+library(jsonlite)
+library(rvest)
+
+# Genius API Token
+genius_token <- "BoaVCPyQtW90wUPpm3lPVgm1b5AJGB0BIBvG1UO9dj473mlajOuyvJ1hrN0Dvw9G" 
+# Test song
+test_title <- "Blinding Lights"
+test_artist <- "The Weeknd"
+
+# Function to search Genius
+search_song <- function(title, artist, token) {
+  query <- URLencode(paste(title, artist))
+  url <- paste0("https://api.genius.com/search?q=", query)
+  res <- GET(url, add_headers(Authorization = paste("Bearer", token)))
+
+  if (status_code(res) == 200) {
+    json <- fromJSON(content(res, as = "text"), simplifyVector = FALSE)
+    hits <- json$response$hits
+
+    for (hit in hits) {
+      result <- hit[["result"]]
+      if (!is.null(result)) {
+        primary_artist <- result[["primary_artist"]]
+        artist_name <- primary_artist[["name"]]
+
+        if (!is.null(artist_name) && grepl(tolower(artist), tolower(artist_name))) {
+          return(result[["url"]])
+        }
+      }
+    }
+  } else {
+    warning("API request failed with status code: ", status_code(res))
+  }
+
+  return(NA)
+}
+
+# Function to get lyrics
+get_lyrics <- function(url) {
+  page <- read_html(url)
+  lyrics_nodes <- html_nodes(page, ".Lyrics__Container-sc-1ynbvzw-6, div.lyrics")
+  lyrics <- paste(html_text(lyrics_nodes, trim = TRUE), collapse = "\n")
+  return(lyrics)
+}
+
+# Run test
+song_url <- search_song(test_title, test_artist, genius_token)
+cat("Genius URL:", song_url, "\n")
+
+if (!is.na(song_url)) {
+  lyrics <- get_lyrics(song_url)
+  cat(substr(lyrics, 1, 500))  # Print first 500 chars
+} else {
+  cat("No Genius URL found.\n")
+}
 ```
 
 ## Section Two
