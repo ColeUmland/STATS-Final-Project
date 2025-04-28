@@ -96,6 +96,40 @@ new project test
 
 ```{r Cole Umland}
 
+#This table is closer to its goal. The 2000s additions to the table are off and still trying to remove the rows with repeating values (ones displaying years)
+library(rvest)
+library(dplyr)
+library(purrr)
+library(stringr)
+
+decade_urls <- c(
+  "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_from_1958_to_1969",
+  "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_of_the_1970s",
+  "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_of_the_1980s",
+  "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_of_the_1990s",
+  "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_of_the_2000s",
+  "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_of_the_2010s",
+  "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_of_the_2020s"
+)
+
+all_number_ones <- map_df(decade_urls, function(url) {
+  page <- read_html(url)
+  
+  table <- page %>%
+    html_node("table.wikitable") %>%
+    html_table(fill = TRUE)
+
+  names(table) <- tolower(names(table))
+  
+  if (any(str_detect(names(table), "single|song")) && any(str_detect(names(table), "artist"))) {
+    table %>%
+      select(contains("date"), contains("single"), contains("song"), contains("artist")) %>%
+      rename_with(~ c("date", "title", "artist")[1:length(.)]) %>%
+      mutate(date = as.character(date))
+  } else {
+    NULL
+  }
+})
 ```
 
 ## Section Four 
