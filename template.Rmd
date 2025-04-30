@@ -95,8 +95,7 @@ new project test
 ## Section Three
 
 ```{r Cole Umland}
-
-#This table is closer to its goal. The 2000s additions to the table are off and still trying to remove the rows with repeating values (ones displaying years)
+#This table is cleaned up and ready to roll.
 library(rvest)
 library(dplyr)
 library(purrr)
@@ -114,22 +113,26 @@ decade_urls <- c(
 
 all_number_ones <- map_df(decade_urls, function(url) {
   page <- read_html(url)
-  
+
   table <- page %>%
     html_node("table.wikitable") %>%
     html_table(fill = TRUE)
 
   names(table) <- tolower(names(table))
-  
+
   if (any(str_detect(names(table), "single|song")) && any(str_detect(names(table), "artist"))) {
-    table %>%
-      select(contains("date"), contains("single"), contains("song"), contains("artist")) %>%
-      rename_with(~ c("date", "title", "artist")[1:length(.)]) %>%
-      mutate(date = as.character(date))
+    cleaned <- table %>%
+      select(contains("single"), contains("artist"), contains("reached")) %>%
+      rename_with(~ c("single", "artist", "date")[1:length(.)]) %>%
+      # Remove rows with all values that have four characters
+      #Clever, ran into the problem where deleting rows with only four characters also deleted songs with years titles (ex: "1999"). Fixed this by changing any to all in the following code line. All rows with years in every column are now deleted
+      filter(!apply(., 1, function(row) all(nchar(as.character(row)) == 4)))
+    return(cleaned)
   } else {
-    NULL
+    return(NULL)
   }
 })
+
 ```
 
 ## Section Four 
