@@ -30,7 +30,9 @@ genius_token <- "BoaVCPyQtW90wUPpm3lPVgm1b5AJGB0BIBvG1UO9dj473mlajOuyvJ1hrN0Dvw9
 test_title <- "Blinding Lights"
 test_artist <- "The Weeknd"
 
-# Function to search Genius
+# Function to search Genius for lyrics of given songs
+# inputs: title of song, artist of song, and a given Genius token
+# outputs: A url to the Genius page containing the lyrics of the song, as well as the lyrics themselves
 search_song <- function(title, artist, token) {
   query <- URLencode(paste(title, artist))
   url <- paste0("https://api.genius.com/search?q=", query)
