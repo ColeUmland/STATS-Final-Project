@@ -60,32 +60,45 @@ search_song <- function(title, artist, token) {
   return(NA)
 }
 
-# Function to get lyrics
-get_lyrics <- function(url) {
+#Function to get lyrics
+#Inputs: Genius URL
+#Outputs: cleaned up lyrics as one line
+get_clean_lyrics <- function(url) {
   page <- read_html(url)
   lyrics_nodes <- html_elements(page, '[data-lyrics-container="true"]')
-  
+
   if (length(lyrics_nodes) == 0) {
-    lyrics_nodes <- html_elements(page, 'div.lyrics')
+    lyrics_nodes <- html_elements(page, 'div.lyrics')  # fallback
   }
-  
-  lyrics <- lyrics_nodes %>% 
-    html_text(trim = TRUE) %>% 
+
+  # Collapse all the lyrics text with line breaks between nodes
+  lyrics <- lyrics_nodes %>%
+    html_text2() %>%  # html_text2() preserves line breaks better
     paste(collapse = "\n")
-  
-  return(lyrics)
+
+  # Keep only content after [Intro] or [Verse 1]
+  lyrics_after <- sub(".*\\[(Intro|Verse 1)\\]", "", lyrics, ignore.case = TRUE)
+
+  # Remove all [Section Headers]
+  clean_lyrics <- str_replace_all(lyrics_after, "\\[.*?\\]", "")
+
+  # Trim and fix spacing
+  clean_lyrics <- gsub("\\s+", " ", clean_lyrics)
+  clean_lyrics <- trimws(clean_lyrics)
+
+  return(clean_lyrics)
 }
 
-# Run test
-song_url <- search_song(test_title, test_artist, genius_token)
-cat("Genius URL:", song_url, "\n")
+
+song_url <- search_song(test_title2, test_artist2, genius_token)
 
 if (!is.na(song_url)) {
-  lyrics <- get_lyrics(song_url)
-  cat(substr(lyrics, 1, 500))  # Print first 500 chars
+  lyrics <- get_clean_lyrics(song_url)
+  cat(substr(lyrics, 1, 5000))  # print first 5000 characters
 } else {
   cat("No Genius URL found.\n")
 }
+
 ```
 
 ## Section Two
