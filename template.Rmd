@@ -91,15 +91,6 @@ get_clean_lyrics <- function(url) {
 
 
 
-song_url <- search_song(test_title2, test_artist2, genius_token)
-
-if (!is.na(song_url)) {
-  lyrics <- get_clean_lyrics(song_url)
-  cat(substr(lyrics, 1, 5000))  # print first 5000 characters
-} else {
-  cat("No Genius URL found.\n")
-}
-
 ```
 
 ## Section Two
