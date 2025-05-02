@@ -140,5 +140,126 @@ all_number_ones <- map_df(decade_urls, function(url) {
 ## Section Four 
 
 ```{r Charlie Wiegel}
+library(rvest)
+library(dplyr)
+library(purrr)
+library(stringr)
+library(httr)
+library(jsonlite)
+library(readr)
 
+# Genius API Token
+genius_token <- "BoaVCPyQtW90wUPpm3lPVgm1b5AJGB0BIBvG1UO9dj473mlajOuyvJ1hrN0Dvw9G"  # Replace this with your actual token
+
+# --- 1. Scrape Billboard Number One Songs ---
+decade_urls <- c(
+  "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_from_1958_to_1969",
+  "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_of_the_1970s",
+  "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_of_the_1980s",
+  "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_of_the_1990s",
+  "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_of_the_2000s",
+  "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_of_the_2010s",
+  "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_of_the_2020s"
+)
+
+all_number_ones <- map_df(decade_urls, function(url) {
+  page <- read_html(url)
+
+  table <- page %>%
+    html_node("table.wikitable") %>%
+    html_table(fill = TRUE)
+
+  names(table) <- tolower(names(table))
+
+  if (any(str_detect(names(table), "single|song")) && any(str_detect(names(table), "artist"))) {
+    cleaned <- table %>%
+      select(contains("single"), contains("artist"), contains("reached")) %>%
+      rename_with(~ c("single", "artist", "date")[1:length(.)]) %>%
+      filter(!apply(., 1, function(row) all(nchar(as.character(row)) == 4)))
+    return(cleaned)
+  } else {
+    return(NULL)
+  }
+})
+
+# --- 2. Genius Functions ---
+search_song <- function(title, artist, token) {
+  query <- URLencode(paste(title, artist))
+  url <- paste0("https://api.genius.com/search?q=", query)
+  res <- GET(url, add_headers(Authorization = paste("Bearer", token)))
+
+  if (status_code(res) == 200) {
+    json <- fromJSON(content(res, as = "text"), simplifyVector = FALSE)
+    hits <- json$response$hits
+    for (hit in hits) {
+      result <- hit[["result"]]
+      if (!is.null(result)) {
+        primary_artist <- result[["primary_artist"]]
+        artist_name <- primary_artist[["name"]]
+        if (!is.null(artist_name) && grepl(tolower(artist), tolower(artist_name))) {
+          return(result[["url"]])
+        }
+      }
+    }
+  }
+  return(NA)
+}
+
+get_lyrics <- function(url) {
+  page <- tryCatch(read_html(url), error = function(e) return(NA))
+  if (is.na(page)) return(NA)
+
+  lyrics_nodes <- html_elements(page, '[data-lyrics-container="true"]')
+  if (length(lyrics_nodes) == 0) {
+    lyrics_nodes <- html_elements(page, 'div.lyrics')
+  }
+
+  lyrics <- lyrics_nodes %>%
+    html_text(trim = TRUE) %>%
+    paste(collapse = "\n")
+
+  return(lyrics)
+}
+
+# --- 3. Batch Processing with Progress Saving ---
+process_batch <- function(data, start_row, end_row, token, output_file) {
+  results <- list()
+
+  for (i in start_row:end_row) {
+    song <- data[i, ]
+    cat("Processing [", i, "]:", song$single, "by", song$artist, "\n")
+
+    url <- tryCatch(search_song(song$single, song$artist, token), error = function(e) NA)
+    Sys.sleep(0.5)  # Respect API limits
+
+    lyrics <- if (!is.na(url)) tryCatch(get_lyrics(url), error = function(e) NA) else NA
+    Sys.sleep(0.5)
+
+    results[[i - start_row + 1]] <- song %>%
+      mutate(genius_url = url, lyrics = lyrics)
+
+    # Save after each row (or do batch-save every 10 rows if preferred)
+    write_csv(bind_rows(results), output_file, append = file.exists(output_file))
+  }
+
+  return(bind_rows(results))
+}
+
+# Example usage
+# To process the first 50 rows and save results to 'lyrics_output.csv'
+output_file <- "lyrics_output.csv"
+start_index <- 51
+end_index <- 100  # Change this to batch size you want
+
+# Optional: Skip already processed rows
+if (file.exists(output_file)) {
+  processed <- read_csv(output_file, show_col_types = FALSE)
+  start_index <- nrow(processed) + 1
+}
+
+if (start_index <= nrow(all_number_ones)) {
+  process_batch(all_number_ones, start_index, min(end_index, nrow(all_number_ones)), genius_token, output_file)
+} else {
+  cat("All songs already processed.\n")
+}
 ```
