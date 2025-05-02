@@ -90,6 +90,7 @@ get_clean_lyrics <- function(url) {
 }
 
 
+#test section to see if get_clean_lyrics() works
 song_url <- search_song(test_title2, test_artist2, genius_token)
 
 if (!is.na(song_url)) {
