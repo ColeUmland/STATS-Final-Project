@@ -145,6 +145,9 @@ all_number_ones <- map_df(decade_urls, function(url) {
 ## Section Four 
 
 ```{r Charlie Wiegel}
+
+library(tidyverse)
+
 # --- 3. Batch Processing with Progress Saving ---
 process_batch <- function(data, start_row, end_row, token, output_file) {
   results <- list()
