@@ -235,7 +235,7 @@ library(purrr)
 library(stringdist)
 
 #The smaller the max distance, the closer the matches need to be to count. A max_distance of 7 would allow for some typos but wouldn't be too fuzzy to count too much
-count_fuzzy_title_repeats <- function(title, lyrics_text, max_distance = 7, ngram_window = 5) {
+count_fuzzy_title_repeats <- function(title, lyrics_text, max_distance = 5, ngram_window = 5) {
   if (is.na(lyrics_text) || is.null(lyrics_text)) return(NA)
   
   # Preprocess: lowercase, remove extra white space
@@ -265,7 +265,7 @@ count_fuzzy_title_repeats <- function(title, lyrics_text, max_distance = 7, ngra
 fuzzy_results <- processed %>%
   mutate(
     fuzzy_repeats = map2_int(single, lyrics, ~ tryCatch(
-      count_fuzzy_title_repeats(.x, .y, max_distance = 7),
+      count_fuzzy_title_repeats(.x, .y, max_distance = 5),
       error = function(e) NA
     ))
   )
@@ -274,7 +274,7 @@ fuzzy_results <- processed %>%
 fuzzy_results %>% arrange(desc(fuzzy_repeats)) %>% head(10)
 
 # Simplified function using existing lyrics
-process_song_fuzzy <- function(single, lyrics, max_distance = 7) {
+process_song_fuzzy <- function(single, lyrics, max_distance = 5) {
   cat("Processing:", single, "\n")
   
   fuzzy_count <- tryCatch(
@@ -317,7 +317,7 @@ fuzzy_results <- processed %>%
       lyrics_text <- if (length(.y) > 1) paste(.y, collapse = " ") else .y
 
       tryCatch(
-        count_fuzzy_title_repeats(.x, lyrics_text, max_distance = 7),
+        count_fuzzy_title_repeats(.x, lyrics_text, max_distance = 5),
         error = function(e) {
           cat("Error processing", .x, ":", e$message, "\n")
           return(NA)
@@ -330,7 +330,7 @@ processed <- processed %>%
   mutate(
     fuzzy_repeats = map2_int(single, lyrics, ~ {
       lyrics_text <- if (length(.y) > 1) paste(.y, collapse = " ") else .y
-      count_fuzzy_title_repeats(.x, lyrics_text, max_distance = 7)
+      count_fuzzy_title_repeats(.x, lyrics_text, max_distance = 5)
     })
   )
 ```
