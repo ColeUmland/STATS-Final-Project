@@ -205,6 +205,8 @@ if (start_index <= nrow(all_number_ones)) {
 } else {
   cat("All songs already processed.\n")
 }
+
+processed <- "lyrics_output.csv"
 ```
 ##Section 5 Cole Umland
 ```{r, echo=FALSE}
