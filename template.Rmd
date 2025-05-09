@@ -77,10 +77,23 @@ get_clean_lyrics <- function(url) {
   lyrics <- lyrics_nodes %>%
     html_text2() %>%  # html_text2() preserves line breaks better
     paste(collapse = "\n")
-
+  
+  lyrics <- sub("^.*?\\s[Ll]yrics\\s*", "", lyrics)
+  lyrics <- sub(".*… Read More ", "", lyrics)
+  
   # Keep only content after [Intro] or [Verse 1]
   lyrics_after <- sub(".*\\[.*?\\]", "", lyrics, ignore.case = TRUE)
 
+  if (identical(lyrics_after, lyrics)) {
+    lines <- strsplit(lyrics, "\n")[[1]]
+    lines <- trimws(lines)
+    # Look for first line that likely begins real lyrics (e.g., lowercase or punctuation)
+    start_idx <- which(grepl("^[a-z]|[[:punct:]]", lines))[1]
+    if (!is.na(start_idx)) {
+      lyrics_after <- paste(lines[start_idx:length(lines)], collapse = "\n")
+    }
+  }
+  
   # Remove all [Section Headers]
   clean_lyrics <- str_replace_all(lyrics_after, "\\[.*?\\]", "")
   # Trim and fix spacing
@@ -89,6 +102,8 @@ get_clean_lyrics <- function(url) {
   clean_lyrics <- gsub("([a-z])([A-Z])", "\\1 \\2", clean_lyrics)
   clean_lyrics <- gsub("(\\w)\\(", "\\1 (", clean_lyrics)
   clean_lyrics <- gsub("\\)(\\w)", ") \\1", clean_lyrics)
+  clean_lyrics <- gsub("([\\)\\?\\!\\.,])(?=\\w)", "\\1 ", clean_lyrics, perl = TRUE)
+  clean_lyrics <- gsub('\\"', '', clean_lyrics)
   return(clean_lyrics)
 }
 
