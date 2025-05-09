@@ -23,6 +23,8 @@ Nickname : Luke5pika
 library(httr)
 library(jsonlite)
 library(rvest)
+library(stringr)
+library(xml2)
 
 # Genius API Token
 genius_token <- "BoaVCPyQtW90wUPpm3lPVgm1b5AJGB0BIBvG1UO9dj473mlajOuyvJ1hrN0Dvw9G" 
