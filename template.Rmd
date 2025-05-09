@@ -107,9 +107,6 @@ get_clean_lyrics <- function(url) {
   return(clean_lyrics)
 }
 
-
-
-
 ```
 
 ## Section Two
@@ -249,7 +246,7 @@ library(dplyr)
 library(purrr)
 library(stringdist)
 
-#The smaller the max distance, the closer the matches need to be to count. A max_distance of 7 would allow for some typos but wouldn't be too fuzzy to count too much
+#The smaller the max distance, the closer the matches need to be to count. A max_distance of 5 would allow for some typos but wouldn't be too fuzzy to count too much
 count_fuzzy_title_repeats <- function(title, lyrics_text, max_distance = 5, ngram_window = 5) {
   if (is.na(lyrics_text) || is.null(lyrics_text)) return(NA)
   
