@@ -160,7 +160,7 @@ all_number_ones <- map_df(decade_urls, function(url) {
 
 ## Section Four 
 
-```{r Charlie Wiegel}
+```{r, eval=FALSE}
 
 library(tidyverse)
 
@@ -191,8 +191,8 @@ process_batch <- function(data, start_row, end_row, token, output_file) {
 # Example usage
 # To process the first 50 rows and save results to 'lyrics_output.csv'
 output_file <- "lyrics_output.csv"
-start_index <- 51
-end_index <- 100  # Change this to batch size you want
+start_index <- 1
+end_index <- 1185  # Change this to batch size you want
 
 # Optional: Skip already processed rows
 if (file.exists(output_file)) {
