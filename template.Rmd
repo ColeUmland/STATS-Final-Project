@@ -194,3 +194,144 @@ if (start_index <= nrow(all_number_ones)) {
   cat("All songs already processed.\n")
 }
 ```
+
+## Section 5 Cole Umland
+```{r}
+# Count how many times the title appears in the lyrics (case-insensitive)
+count_title_repeats <- function(title, lyrics) {
+  if (is.na(lyrics) || lyrics == "") {
+    return(NA)
+  }
+  
+  # Normalize title and lyrics: lowercase, remove punctuation
+  clean_title <- tolower(gsub("[[:punct:]]", "", title))
+  clean_lyrics <- tolower(gsub("[[:punct:]]", "", lyrics))
+  
+  # Split lyrics into words and match title
+  title_words <- strsplit(clean_title, "\\s+")[[1]]
+  pattern <- paste0("\\b", paste(title_words, collapse = "\\s+"), "\\b")
+  
+  # Count matches
+  match_count <- str_count(clean_lyrics, regex(pattern, ignore_case = TRUE))
+  return(match_count)
+}
+
+title <- "Blinding Lights"
+lyrics <- get_clean_lyrics(search_song(title, "The Weeknd", genius_token))
+count_title_repeats(title, lyrics)
+
+title <- "Shake It Off"
+artist <- "Taylor Swift"
+url <- search_song(title, artist, genius_token)
+lyrics <- get_clean_lyrics(url)
+count_title_repeats(title, lyrics)
+
+#The entire section above may or may not need to be added, as it just shows that there is a clear disparity in testing for song title in the lyrics for repetitiveness due to the variance in how titles are used in the lyrics. This is shown through the examples of Blinding Lights and Shake it Off
+#############################
+
+#Fuzzy matching idea
+library(dplyr)
+library(purrr)
+library(stringdist)
+
+#The smaller the max distance, the closer the matches need to be to count. A max_distance of 7 would allow for some typos but wouldn't be too fuzzy to count too much
+count_fuzzy_title_repeats <- function(title, lyrics_text, max_distance = 7, ngram_window = 5) {
+  if (is.na(lyrics_text) || is.null(lyrics_text)) return(NA)
+  
+  # Preprocess: lowercase, remove extra white space
+  lyrics_text <- tolower(lyrics_text)
+  title <- tolower(title)
+  
+  # Split into words
+  words <- unlist(strsplit(lyrics_text, "\\s+"))
+  title_len <- length(strsplit(title, "\\s+")[[1]])
+
+  # Create n-grams (sliding windows of length matching title or a bit more)
+  ngram_size <- max(title_len, 1)
+  ngrams <- sapply(1:(length(words) - ngram_size + 1), function(i) {
+    paste(words[i:(i + ngram_size - 1)], collapse = " ")
+  })
+
+  # Compute string distances
+  distances <- stringdist::stringdist(ngrams, title, method = "lv")
+
+  # Count how many are within the allowed distance
+  sum(distances <= max_distance, na.rm = TRUE)
+}
+
+##########
+# Apply fuzzy matching directly using mutate + map2
+#Eventually, we need to apply this to our prefect table and not processed
+fuzzy_results <- processed %>%
+  mutate(
+    fuzzy_repeats = map2_int(single, lyrics, ~ tryCatch(
+      count_fuzzy_title_repeats(.x, .y, max_distance = 7),
+      error = function(e) NA
+    ))
+  )
+# View songs with high repetition
+#This reads the top songs with higher repetition first, and the rest in descending order. May not be needed in the future
+fuzzy_results %>% arrange(desc(fuzzy_repeats)) %>% head(10)
+
+# Simplified function using existing lyrics
+process_song_fuzzy <- function(single, lyrics, max_distance = 7) {
+  cat("Processing:", single, "\n")
+  
+  fuzzy_count <- tryCatch(
+    count_fuzzy_title_repeats(single, lyrics, max_distance),
+    error = function(e) {
+      cat("Error:", e$message, "\n")
+      return(NA)
+    }
+  )
+  
+  return(tibble(
+    single = single,
+    fuzzy_repeats = fuzzy_count
+  ))
+}
+
+# Apply to first 20 rows of processed data frame
+fuzzy_results <- processed %>%
+  slice(1:20) %>%
+  mutate(
+    fuzzy_repeats = map2_int(single, lyrics, ~ process_song_fuzzy(.x, .y)$fuzzy_repeats)
+  )
+
+# View results
+print(fuzzy_results %>% select(single, artist, fuzzy_repeats))
+
+fuzzy_results <- processed %>%
+  slice(1:20) %>%
+  mutate(
+    fuzzy_repeats = map2_int(single, lyrics, ~ {
+      cat("Processing:", .x, "\n")
+      
+      # Handle NA or NULL lyrics
+      if (is.null(.y) || all(is.na(.y))) {
+        cat("Lyrics missing for", .x, "\n")
+        return(NA)
+      }
+
+      # If it's a character vector of multiple lines, combine into one string
+      lyrics_text <- if (length(.y) > 1) paste(.y, collapse = " ") else .y
+
+      tryCatch(
+        count_fuzzy_title_repeats(.x, lyrics_text, max_distance = 7),
+        error = function(e) {
+          cat("Error processing", .x, ":", e$message, "\n")
+          return(NA)
+        }
+      )
+    })
+  )
+#Mutating the table to add a new column with all the fuzzy results in it
+processed <- processed %>%
+  mutate(
+    fuzzy_repeats = map2_int(single, lyrics, ~ {
+      lyrics_text <- if (length(.y) > 1) paste(.y, collapse = " ") else .y
+      count_fuzzy_title_repeats(.x, lyrics_text, max_distance = 7)
+    })
+  )
+```
+
