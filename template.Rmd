@@ -85,6 +85,9 @@ get_clean_lyrics <- function(url) {
   clean_lyrics <- gsub("\\s+", " ", clean_lyrics)
   
   clean_lyrics <- gsub("([a-z])([A-Z])", "\\1 \\2", clean_lyrics)
+  clean_lyrics <- gsub("(\\w)\\(", "\\1 (", clean_lyrics)
+  clean_lyrics <- gsub("\\)(\\w)", ") \\1", clean_lyrics)
+  
   return(clean_lyrics)
 }
 
