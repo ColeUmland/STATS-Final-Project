@@ -79,7 +79,7 @@ get_clean_lyrics <- function(url) {
     paste(collapse = "\n")
 
   # Keep only content after [Intro] or [Verse 1]
-  lyrics_after <- sub(".*\\[(Intro|Verse 1)\\]", "", lyrics, ignore.case = TRUE)
+  lyrics_after <- sub(".*\\[.*?\\]", "", lyrics, ignore.case = TRUE)
 
   # Remove all [Section Headers]
   clean_lyrics <- str_replace_all(lyrics_after, "\\[.*?\\]", "")
@@ -89,7 +89,6 @@ get_clean_lyrics <- function(url) {
   clean_lyrics <- gsub("([a-z])([A-Z])", "\\1 \\2", clean_lyrics)
   clean_lyrics <- gsub("(\\w)\\(", "\\1 (", clean_lyrics)
   clean_lyrics <- gsub("\\)(\\w)", ") \\1", clean_lyrics)
-  
   return(clean_lyrics)
 }
 
@@ -101,7 +100,7 @@ get_clean_lyrics <- function(url) {
 ## Section Two
 
 ```{r Luke Spika}
-new project test
+#new project test
 ```
 
 ## Section Three
