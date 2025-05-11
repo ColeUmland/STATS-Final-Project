@@ -214,8 +214,6 @@ if (start_index <= nrow(all_number_ones)) {
 } else {
   cat("All songs already processed.\n")
 }
-
-processed <- "lyrics_output.csv"
 ```
 
 #Section 4.1 Reading in the Data Frame
