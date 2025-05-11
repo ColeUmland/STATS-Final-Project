@@ -113,6 +113,12 @@ get_clean_lyrics <- function(url) {
 
 ```{r Luke Spika}
 #new project test
+To gather all the songs that were billboard top 100 hits, we found Wikipedia links that gathered the ‘top 100 number 1 singles’ by decades from 1958 to present day, grouping 1958 to 1969, the 1970s, 1980s, etc. From those links we scraped the artist, title, and date of the songs. We had some struggle keeping the row for the dates of the songs but eventually found something clever that worked. 
+
+For gathering the genius URL and lyrics for all the songs we had to first gather a genius API token to be able to access the genius website. Once we had that, we created a function called ‘search_song’ which would take the artist, name of the song, and genius token which would give out the URL and lyrics of the song back to us. From there we created a function called ‘get_lyrics_clean’ which would then take the genius URL and give back a cleaned-up (getting rid of the weird formatting and extra labels of the lyrics from genius) version of the lyrics in one line. 
+
+To create the table which included artists, song, date, genius URL, and lyrics we created a function called ‘process_batch’ which took the song, scraped the genius URL of the song, and then put the lyrics of the song through the ‘get_clean_lyrics’ function for all 1,185 songs. Running this took a long time, so we decided that instead of everyone having to run the code, we would turn the table into a csv file and call the csv file when we needed it. 
+
 ```
 
 ## Section Three
