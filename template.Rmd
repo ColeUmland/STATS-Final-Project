@@ -335,3 +335,39 @@ fuzzy_results <- lyrics_df %>%
 head(fuzzy_results)
 ```
 
+## Section 7
+```{r}
+get_unique_word_percentage_from_text <- function(lyrics) {
+  if (is.na(lyrics) || lyrics == "") {
+    return(tibble(
+      total_words = NA_integer_,
+      unique_words = NA_integer_,
+      unique_percentage = NA_real_
+    ))
+  }
+
+  words <- str_to_lower(lyrics) %>%
+    str_replace_all("[^a-z\\s']", "") %>%  # keeps apostrophes like in "don't"
+    str_split("\\s+") %>%
+    unlist() %>%
+    discard(~ .x == "")
+
+  total_words <- length(words)
+  unique_words <- length(unique(words))
+
+  if (total_words == 0) {
+    return(tibble(total_words = 0, unique_words = 0, unique_percentage = NA_real_))
+  }
+
+  tibble(
+    total_words = total_words,
+    unique_words = unique_words,
+    unique_percentage = round(unique_words / total_words, 4)
+  )
+}
+
+fuzzy_results <- lyrics_df %>%
+  mutate(stats = map(lyrics, get_unique_word_percentage_from_text)) %>%
+  unnest(stats)
+```
+
