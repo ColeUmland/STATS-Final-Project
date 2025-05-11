@@ -313,6 +313,7 @@ lyrics_df %>% arrange(desc(fuzzy_repeats)) %>% head(10)
 # View results
 head(lyrics_df)
 ```
+
 ##Section 6.1 Cole Umland
 ```{r}
 library(ggplot2)
