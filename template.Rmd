@@ -316,7 +316,7 @@ head(lyrics_df)
 
 ## Section 6
 
-# The below code chunk creates a function that ultimately gets a 'unique word percentage' from the lyrics of each song. It does this by counting the total number of words, counting the number of unique words, and then dividing those counts to get the percentage. A lower percentage means a song is more repetitive while a higher 'unique word percentage' means a song is more unique and less repetitive. 
+The below code chunk creates a function that ultimately gets a 'unique word percentage' from the lyrics of each song. It does this by counting the total number of words, counting the number of unique words, and then dividing those counts to get the percentage. A lower percentage means a song is more repetitive while a higher 'unique word percentage' means a song is more unique and less repetitive. 
 
 ```{r}
 get_unique_word_percentage_from_text <- function(lyrics) {
