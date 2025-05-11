@@ -314,7 +314,7 @@ lyrics_df %>% arrange(desc(fuzzy_repeats)) %>% head(10)
 head(lyrics_df)
 ```
 
-##Section 6.1 Cole Umland
+##Section 5.1 Cole Umland
 ```{r}
 library(ggplot2)
 library(dplyr)
@@ -328,14 +328,14 @@ expand_year <- function(date_str) {
   year_2digit <- as.integer(parts[3])
   
   # Determine full year based on cutoff
-  # We ran into the problem of the year column creation on either side of the 21st century wehn making the new column. This logic fixed our issue
+  # We ran into the problem of the year column creation on either side of the 21st century when making the new column. This logic fixed our issue
   full_year <- ifelse(year_2digit <= 25, 2000 + year_2digit, 1900 + year_2digit)
   
   # Rebuild date string
   paste(parts[1], parts[2], full_year, sep = "-")
 }
 
-# Apply fix to dataframe
+# Apply fix to data frame
 lyrics_df <- lyrics_df %>%
   mutate(
     date_fixed = sapply(date, expand_year),
@@ -344,18 +344,25 @@ lyrics_df <- lyrics_df %>%
   )
 
 
-# This groups all the entries from the lyrics_df with the same entry in the year column. Then a yearly summary is made for every year
-yearly_summary <- lyrics_df %>%
-  group_by(year) %>%
-  summarise(total_repeats = sum(fuzzy_repeats, na.rm = TRUE))
+# This groups all the entries from the lyrics_df with the same entry in the year column. Then a yearly summary is made for every year. 
+#Noticing the plot the first time, the years with more number one songs seemed to have more total repeats. This was more likely due to more songs totaling more repeats together. To normalize this, we took the total title repeats and divided it by the amount of #1 songs in that year. This normalized each year.
 
-fuzzy_gg <- ggplot(yearly_summary, aes(x = year, y = total_repeats)) +
+yearly_normalized <- lyrics_df %>%
+  group_by(year) %>%
+  summarise(
+    total_repeats = sum(fuzzy_repeats, na.rm = TRUE),
+    song_count = n(),
+    avg_repeats = total_repeats / song_count
+  )
+
+
+fuzzy_gg <- ggplot(yearly_normalized, aes(x = year, y = avg_repeats)) +
   geom_line(color = "blue") +
   geom_point(color = "black") +
   labs(
-    title = "Fuzzy repaets by Year: Fuzzy",
+    title = "Fuzzy Repeats by Year: Fuzzy",
     x = "Year",
-    y = "Fuzzy Repeats"
+    y = "Fuzzy Repeats per Year"
   ) +
   theme_minimal()
 
