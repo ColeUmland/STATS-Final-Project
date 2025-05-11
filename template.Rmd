@@ -261,7 +261,7 @@ The Fuzzy Method
 
 Knowing that some songs had soft title repetitions and some songs had explicit repetitions, we wanted to create a test that counted explicit repetitions with some leeway. This way, songs that had their title in their lyrics, but in just a little different of a format, would be counted as a repetition. 
 
-To determine how close the title had to be in the lyrics to count as a repetition, we created an arbitrary distance called "max_distance." Anything in the lyrics that was close enough to the title, was then counted as a repetition. How we determined this distance was through trail and error. The small the max distance value (e.g. 0), the more exact the lyrics had to be to the title to be counted as a repetition. In the case of a max distance of zero, only exact repetitions were allowed to count as repeats. The larger the max distance (e.g. 10), the more typos and differences were allowed to be counted as a title repetition. We tested higher and lower max distance values. In this process, we discovered that songs with short titles were picking up more title repeats coupled with larger max distances. This is because the shorter the title, the easier it would be for any word with a certain amount of typos to match with it. We settled on a max distance of five by testing certain examples of both high and low repetitiveness directly with their lyrics from Genius to see how accurate the test was. 
+To determine how close the title had to be in the lyrics to count as a repetition, we created an arbitrary distance called "max_distance." Anything in the lyrics that was close enough to the title, was then counted as a repetition. How we determined this distance was through trail and error. The small the max distance value (e.g. 0), the more exact the lyrics had to be to the title to be counted as a repetition. In the case of a max distance of zero, only exact repetitions were allowed to count as repeats. The larger the max distance (e.g. 10), the more typos and differences were allowed to be counted as a title repetition. We tested higher and lower max distance values. In this process, we discovered that songs with short titles were picking up more title repeats coupled with larger max distances. This is because the shorter the title, the easier it would be for any word with a certain amount of typos to match with it. We settled on a max distance of five by testing certain examples of both high and low repetitiveness directly with their lyrics from Genius to see how accurate the test was. In the end, we steeled with a max distance of four as it suited our testing the best.
 
 ## Section 6 Cole Umland
 ```{r, message=FALSE}
@@ -271,7 +271,7 @@ library(purrr)
 library(stringdist)
 
 #The smaller the max distance, the closer the matches need to be to count. A max_distance of 5 would allow for some typos but wouldn't be too fuzzy to count too much
-count_fuzzy_title_repeats <- function(title, lyrics_text, max_distance = 5, ngram_window = 5) {
+count_fuzzy_title_repeats <- function(title, lyrics_text, max_distance = 4, ngram_window = 5) {
   if (is.na(lyrics_text) || is.null(lyrics_text)) return(NA)
   
   # Preprocess: lowercase, remove extra white space
@@ -298,10 +298,10 @@ count_fuzzy_title_repeats <- function(title, lyrics_text, max_distance = 5, ngra
 ##########
 # Apply fuzzy matching directly using mutate + map2
 #Eventually, we need to apply this to our prefect table and not processed
-fuzzy_results <- processed %>%
+fuzzy_results <- lyrics_df %>%
   mutate(
     fuzzy_repeats = map2_int(single, lyrics, ~ tryCatch(
-      count_fuzzy_title_repeats(.x, .y, max_distance = 5),
+      count_fuzzy_title_repeats(.x, .y, max_distance = 4),
       error = function(e) NA
     ))
   )
@@ -310,9 +310,7 @@ fuzzy_results <- processed %>%
 fuzzy_results %>% arrange(desc(fuzzy_repeats)) %>% head(10)
 
 # Simplified function using existing lyrics
-process_song_fuzzy <- function(single, lyrics, max_distance = 5) {
-  cat("Processing:", single, "\n")
-  
+process_song_fuzzy <- function(single, lyrics, max_distance = 4) {
   fuzzy_count <- tryCatch(
     count_fuzzy_title_repeats(single, lyrics, max_distance),
     error = function(e) {
@@ -328,22 +326,12 @@ process_song_fuzzy <- function(single, lyrics, max_distance = 5) {
 }
 
 # Apply to first 20 rows of processed data frame
-fuzzy_results <- processed %>%
-  slice(1:20) %>%
+fuzzy_results <- lyrics_df %>%
   mutate(
     fuzzy_repeats = map2_int(single, lyrics, ~ process_song_fuzzy(.x, .y)$fuzzy_repeats)
   )
 
 # View results
-print(fuzzy_results %>% select(single, artist, fuzzy_repeats))
-
-#Mutating the table to add a new column with all the fuzzy results in it
-processed <- processed %>%
-  mutate(
-    fuzzy_repeats = map2_int(single, lyrics, ~ {
-      lyrics_text <- if (length(.y) > 1) paste(.y, collapse = " ") else .y
-      count_fuzzy_title_repeats(.x, lyrics_text, max_distance = 5)
-    })
-  )
+head(fuzzy_results)
 ```
 
