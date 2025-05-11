@@ -116,15 +116,8 @@ For gathering the genius URL and lyrics for all the songs we had to first gather
 
 To create the table which included artists, song, date, genius URL, and lyrics we created a function called ‘process_batch’ which took the song, scraped the genius URL of the song, and then put the lyrics of the song through the ‘get_clean_lyrics’ function for all 1,185 songs. Running this took a long time, so we decided that instead of everyone having to run the code, we would turn the table into a csv file and call the csv file when we needed it. 
 
+
 ## Section Two
-
-```{r Luke Spika}
-#new project test
-
-
-```
-
-## Section Three
 
 ```{r Cole Umland}
 #This table is cleaned up and ready to roll.
@@ -167,7 +160,7 @@ all_number_ones <- map_df(decade_urls, function(url) {
 
 ```
 
-## Section Four 
+## Section Three 
 
 ```{r, eval=FALSE}
 
@@ -216,13 +209,13 @@ if (start_index <= nrow(all_number_ones)) {
 }
 ```
 
-#Section 4.1 Reading in the Data Frame
+#Section 3.1 Reading in the Data Frame
 ```{r}
 lyrics_df <- read.csv("testing.csv")
 ```
 
 
-##Section 5 Cole Umland
+##Section 4 Cole Umland
 ```{r, echo=FALSE}
 # Count how many times the title appears in the lyrics (case-insensitive)
 count_title_repeats <- function(title, lyrics) {
@@ -265,7 +258,7 @@ To determine how close the title had to be in the lyrics to count as a repetitio
 
 In the end, decided to determine the max distance based on the character count in the title of each single. This was to directly combat a static max distance and the impact it had on miscounting songs with short titles. If the title has four or less characters, there can be no typos for it to count as a as a repeat. For songs with 7 or less characters, we set a max distance of 2, and for everything else, a max distance of 4.
 
-## Section 6 Cole Umland
+## Section 5 Cole Umland
 ```{r, message=FALSE}
 library(dplyr)
 library(purrr)
@@ -321,7 +314,10 @@ lyrics_df %>% arrange(desc(fuzzy_repeats)) %>% head(10)
 head(lyrics_df)
 ```
 
-## Section 7
+## Section 6
+
+# The below code chunk creates a function that ultimately gets a 'unique word percentage' from the lyrics of each song. It does this by counting the total number of words, counting the number of unique words, and then dividing those counts to get the percentage. A lower percentage means a song is more repetitive while a higher 'unique word percentage' means a song is more unique and less repetitive. 
+
 ```{r}
 get_unique_word_percentage_from_text <- function(lyrics) {
   if (is.na(lyrics) || lyrics == "") {
@@ -357,7 +353,7 @@ lyrics_df <- lyrics_df %>%
   unnest(stats)
 ```
 
-#Section 8: Stemming
+#Section 7: Stemming
 ```{r}
 library(SnowballC)
 library(dplyr)
