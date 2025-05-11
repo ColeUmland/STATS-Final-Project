@@ -307,7 +307,7 @@ lyrics_df <- lyrics_df %>%
   )
 # View songs with high repetition
 #This reads the top songs with higher repetition first, and the rest in descending order. May not be needed in the future
-fuzzy_results %>% arrange(desc(fuzzy_repeats)) %>% head(10)
+lyrics_df %>% arrange(desc(fuzzy_repeats)) %>% head(10)
 
 # Simplified function using existing lyrics
 process_song_fuzzy <- function(single, lyrics, max_distance = 4) {
@@ -325,14 +325,8 @@ process_song_fuzzy <- function(single, lyrics, max_distance = 4) {
   ))
 }
 
-# Apply to first 20 rows of processed data frame
-fuzzy_results <- lyrics_df %>%
-  mutate(
-    fuzzy_repeats = map2_int(single, lyrics, ~ process_song_fuzzy(.x, .y)$fuzzy_repeats)
-  )
-
 # View results
-head(fuzzy_results)
+head(lyrics_df)
 ```
 
 ## Section 7
