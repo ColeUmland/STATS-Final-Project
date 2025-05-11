@@ -357,3 +357,38 @@ lyrics_df <- lyrics_df %>%
   unnest(stats)
 ```
 
+#Section 8: Stemming
+```{r}
+library(SnowballC)
+library(dplyr)
+library(tidytext)
+library(stringr)
+
+get_top_stems <- function(lyrics_dat) {
+  lyrics_dat %>%
+    unnest_tokens(word, lyrics) %>%
+    mutate(stem = wordStem(word, language = "en")) %>%
+    count(single, stem, sort = TRUE, name = "frequency") %>%
+    group_by(single) %>%
+    mutate(
+      total = sum(frequency),
+      frequency_pct = round(100 * frequency / total, 2)
+    ) %>%
+    slice_max(order_by = frequency, n = 1, with_ties = FALSE) %>%
+    ungroup() %>%
+    transmute(
+      single,
+      top_stem = stem,
+      frequency,
+      frequency_pct
+    )
+}
+
+top_stems <- get_top_stems(lyrics_df)
+
+lyrics_df <- left_join(lyrics_df, top_stems, by = "single")
+head(lyrics_df)
+
+```
+Another method we utilized to analyze the repetitiveness of the songs was by counting the number of similar words present in each song and looking at the percentage of each song's lyrics these similar words accounted for. The technique we used is called Stemming, in which each word is reduced to its root form or stem and then the number of these matching stems was analyzed. For example, 'run,' 'running,' and 'ran,' would all be reduced to just 'run' and then counted as three instances of this stem appearing in the lyrics of a song. The songs that have higher percentages of repeated stems are then seen as the more repetitive songs. 
+
