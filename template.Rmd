@@ -265,33 +265,39 @@ To determine how close the title had to be in the lyrics to count as a repetitio
 
 ## Section 6 Cole Umland
 ```{r, message=FALSE}
-#Fuzzy matching idea
 library(dplyr)
 library(purrr)
 library(stringdist)
 
-#The smaller the max distance, the closer the matches need to be to count. A max_distance of 5 would allow for some typos but wouldn't be too fuzzy to count too much
-count_fuzzy_title_repeats <- function(title, lyrics_text, max_distance = 4, ngram_window = 5) {
+count_fuzzy_title_repeats <- function(title, lyrics_text, max_distance = NULL, ngram_window = 5) {
   if (is.na(lyrics_text) || is.null(lyrics_text)) return(NA)
   
-  # Preprocess: lowercase, remove extra white space
+  # Preprocess: lowercase
   lyrics_text <- tolower(lyrics_text)
   title <- tolower(title)
   
-  # Split into words
+  # Dynamically set max_distance based on title character length
+  if (is.null(max_distance)) {
+    title_length <- nchar(title)
+   max_distance <- if (title_length <= 4) { 0 } else if (title_length <= 7) { 2 } else { 4 }
+}
+  
+  # Split lyrics into words
   words <- unlist(strsplit(lyrics_text, "\\s+"))
   title_len <- length(strsplit(title, "\\s+")[[1]])
-
-  # Create n-grams (sliding windows of length matching title or a bit more)
   ngram_size <- max(title_len, 1)
+
+  if (length(words) < ngram_size) return(0)
+
+  # Create n-grams
   ngrams <- sapply(1:(length(words) - ngram_size + 1), function(i) {
     paste(words[i:(i + ngram_size - 1)], collapse = " ")
   })
 
-  # Compute string distances
+  # Compute distances
   distances <- stringdist::stringdist(ngrams, title, method = "lv")
 
-  # Count how many are within the allowed distance
+  # Count matches
   sum(distances <= max_distance, na.rm = TRUE)
 }
 
@@ -301,29 +307,13 @@ count_fuzzy_title_repeats <- function(title, lyrics_text, max_distance = 4, ngra
 lyrics_df <- lyrics_df %>%
   mutate(
     fuzzy_repeats = map2_int(single, lyrics, ~ tryCatch(
-      count_fuzzy_title_repeats(.x, .y, max_distance = 4),
+      count_fuzzy_title_repeats(.x, .y, max_distance = NULL),
       error = function(e) NA
     ))
   )
 # View songs with high repetition
 #This reads the top songs with higher repetition first, and the rest in descending order. May not be needed in the future
 lyrics_df %>% arrange(desc(fuzzy_repeats)) %>% head(10)
-
-# Simplified function using existing lyrics
-process_song_fuzzy <- function(single, lyrics, max_distance = 4) {
-  fuzzy_count <- tryCatch(
-    count_fuzzy_title_repeats(single, lyrics, max_distance),
-    error = function(e) {
-      cat("Error:", e$message, "\n")
-      return(NA)
-    }
-  )
-  
-  return(tibble(
-    single = single,
-    fuzzy_repeats = fuzzy_count
-  ))
-}
 
 # View results
 head(lyrics_df)
