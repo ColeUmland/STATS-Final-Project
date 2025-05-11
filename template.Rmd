@@ -457,4 +457,25 @@ head(lyrics_df)
 
 ```
 Another method we utilized to analyze the repetitiveness of the songs was by counting the number of similar words present in each song and looking at the percentage of each song's lyrics these similar words accounted for. The technique we used is called Stemming, in which each word is reduced to its root form or stem and then the number of these matching stems was analyzed. For example, 'run,' 'running,' and 'ran,' would all be reduced to just 'run' and then counted as three instances of this stem appearing in the lyrics of a song. The songs that have higher percentages of repeated stems are then seen as the more repetitive songs. 
+#Section 7.1
+```{r}
+avg_stem_by_year <- lyrics_df %>%
+  group_by(year) %>%
+  summarize(frequency_pct.x = 
+              mean(frequency_pct.x, na.rm = TRUE))
+
+
+stem_gg <- ggplot(avg_stem_by_year, mapping = aes(x = year, y = frequency_pct.x)) +
+  geom_line(color = "steelblue", size = .7) +
+  geom_point(color = "darkred", size = 2) +
+  labs(
+    title = "Stem Average by Year",
+    x = "Year",
+    y = "Stem Average"
+  ) +
+  theme_minimal()
+
+print(stem_gg)
+```
+
 
