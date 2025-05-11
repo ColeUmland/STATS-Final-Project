@@ -313,6 +313,54 @@ lyrics_df %>% arrange(desc(fuzzy_repeats)) %>% head(10)
 # View results
 head(lyrics_df)
 ```
+##Section 6.1 Cole Umland
+```{r}
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(lubridate)
+
+# Custom function to expand 2-digit years
+#This breaks the string into three parts
+expand_year <- function(date_str) {
+  parts <- unlist(strsplit(date_str, "-"))
+  year_2digit <- as.integer(parts[3])
+  
+  # Determine full year based on cutoff
+  # We ran into the problem of the year column creation on either side of the 21st century wehn making the new column. This logic fixed our issue
+  full_year <- ifelse(year_2digit <= 25, 2000 + year_2digit, 1900 + year_2digit)
+  
+  # Rebuild date string
+  paste(parts[1], parts[2], full_year, sep = "-")
+}
+
+# Apply fix to dataframe
+lyrics_df <- lyrics_df %>%
+  mutate(
+    date_fixed = sapply(date, expand_year),
+    parsed_date = dmy(date_fixed),
+    year = year(parsed_date)
+  )
+
+
+# This groups all the entries from the lyrics_df with the same entry in the year column. Then a yearly summary is made for every year
+yearly_summary <- lyrics_df %>%
+  group_by(year) %>%
+  summarise(total_repeats = sum(fuzzy_repeats, na.rm = TRUE))
+
+fuzzy_gg <- ggplot(yearly_summary, aes(x = year, y = total_repeats)) +
+  geom_line(color = "blue") +
+  geom_point(color = "black") +
+  labs(
+    title = "Fuzzy repaets by Year: Fuzzy",
+    x = "Year",
+    y = "Fuzzy Repeats"
+  ) +
+  theme_minimal()
+
+print(fuzzy_gg)
+```
+
 
 ## Section 6
 
