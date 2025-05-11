@@ -217,6 +217,13 @@ if (start_index <= nrow(all_number_ones)) {
 
 processed <- "lyrics_output.csv"
 ```
+
+#Section 4.1 Reading in the Data Frame
+```{r}
+lyrics_df <- read.csv("testing.csv")
+```
+
+
 ##Section 5 Cole Umland
 ```{r, echo=FALSE}
 # Count how many times the title appears in the lyrics (case-insensitive)
@@ -258,7 +265,7 @@ Knowing that some songs had soft title repetitions and some songs had explicit r
 
 To determine how close the title had to be in the lyrics to count as a repetition, we created an arbitrary distance called "max_distance." Anything in the lyrics that was close enough to the title, was then counted as a repetition. How we determined this distance was through trail and error. The small the max distance value (e.g. 0), the more exact the lyrics had to be to the title to be counted as a repetition. In the case of a max distance of zero, only exact repetitions were allowed to count as repeats. The larger the max distance (e.g. 10), the more typos and differences were allowed to be counted as a title repetition. We tested higher and lower max distance values. In this process, we discovered that songs with short titles were picking up more title repeats coupled with larger max distances. This is because the shorter the title, the easier it would be for any word with a certain amount of typos to match with it. We settled on a max distance of five by testing certain examples of both high and low repetitiveness directly with their lyrics from Genius to see how accurate the test was. 
 
-## Section 5 Cole Umland
+## Section 6 Cole Umland
 ```{r, message=FALSE}
 #Fuzzy matching idea
 library(dplyr)
