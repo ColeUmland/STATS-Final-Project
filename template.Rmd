@@ -108,6 +108,7 @@ get_clean_lyrics <- function(url) {
 }
 
 ```
+In order to format the lyrics in an easy to use way, certain things that were scraped from the Genius website had to be removed, for example, messages marking the start of a new verse or chorus were present and are not a part of the actual lyrics so they had to be removed. Another problem that we ran into was a formatting issues when the lyrics started a new line on Genius. When this happened, a space was not present between the end of the first line and the start of the second. Other issues included trouble when special characters or punctuation were present. In order to fix all of these issues to make the 'get_clean_lyrics()' function as universal as possible, the best method we found was to tackle the problems one at a time and continually test a variety of songs to make sure the lyrics of each came out clean and usable for future analysis. 
 
 ## Section Two
 
