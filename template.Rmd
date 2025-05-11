@@ -298,7 +298,7 @@ count_fuzzy_title_repeats <- function(title, lyrics_text, max_distance = 4, ngra
 ##########
 # Apply fuzzy matching directly using mutate + map2
 #Eventually, we need to apply this to our prefect table and not processed
-fuzzy_results <- lyrics_df %>%
+lyrics_df <- lyrics_df %>%
   mutate(
     fuzzy_repeats = map2_int(single, lyrics, ~ tryCatch(
       count_fuzzy_title_repeats(.x, .y, max_distance = 4),
