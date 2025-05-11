@@ -360,7 +360,7 @@ get_unique_word_percentage_from_text <- function(lyrics) {
   )
 }
 
-fuzzy_results <- fuzzy_results %>%
+lyrics_df <- lyrics_df %>%
   mutate(stats = map(lyrics, get_unique_word_percentage_from_text)) %>%
   unnest(stats)
 ```
