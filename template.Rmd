@@ -110,15 +110,17 @@ get_clean_lyrics <- function(url) {
 ```
 In order to format the lyrics in an easy to use way, certain things that were scraped from the Genius website had to be removed, for example, messages marking the start of a new verse or chorus were present and are not a part of the actual lyrics so they had to be removed. Another problem that we ran into was a formatting issues when the lyrics started a new line on Genius. When this happened, a space was not present between the end of the first line and the start of the second. Other issues included trouble when special characters or punctuation were present. In order to fix all of these issues to make the 'get_clean_lyrics()' function as universal as possible, the best method we found was to tackle the problems one at a time and continually test a variety of songs to make sure the lyrics of each came out clean and usable for future analysis. 
 
-## Section Two
-
-```{r Luke Spika}
-#new project test
 To gather all the songs that were billboard top 100 hits, we found Wikipedia links that gathered the ‘top 100 number 1 singles’ by decades from 1958 to present day, grouping 1958 to 1969, the 1970s, 1980s, etc. From those links we scraped the artist, title, and date of the songs. We had some struggle keeping the row for the dates of the songs but eventually found something clever that worked. 
 
 For gathering the genius URL and lyrics for all the songs we had to first gather a genius API token to be able to access the genius website. Once we had that, we created a function called ‘search_song’ which would take the artist, name of the song, and genius token which would give out the URL and lyrics of the song back to us. From there we created a function called ‘get_lyrics_clean’ which would then take the genius URL and give back a cleaned-up (getting rid of the weird formatting and extra labels of the lyrics from genius) version of the lyrics in one line. 
 
 To create the table which included artists, song, date, genius URL, and lyrics we created a function called ‘process_batch’ which took the song, scraped the genius URL of the song, and then put the lyrics of the song through the ‘get_clean_lyrics’ function for all 1,185 songs. Running this took a long time, so we decided that instead of everyone having to run the code, we would turn the table into a csv file and call the csv file when we needed it. 
+
+## Section Two
+
+```{r Luke Spika}
+#new project test
+
 
 ```
 
