@@ -165,44 +165,85 @@ all_number_ones <- map_df(decade_urls, function(url) {
 
 library(tidyverse)
 
-# --- 3. Batch Processing with Progress Saving ---
-process_batch <- function(data, start_row, end_row, token, output_file) {
-  results <- list()
+clean_strings <- function(string) {
+  string <- tolower(string)
+  string <- gsub("&", " and ", string)
+  string <- gsub("\\([^)]*\\)", "", string)
+  
+  # Remove "featuring", "feat.", etc. at end or within string
+  string <- gsub("featuring.*", "", string)
+  string <- gsub("feat\\..*", "", string)
+  string <- gsub("feat .*", "", string)
+  
+  string <- gsub("[[:punct:]]", "", string)
+  string <- gsub("\\s+", "-", string)
+  string <- gsub("-+", "-", string)
+  string <- gsub("^-|-$", "", string)
+  return(string)
+}
 
+
+process_batch_combined <- function(data, start_row, end_row, token, output_file) {
   for (i in start_row:end_row) {
     song <- data[i, ]
-    cat("Processing [", i, "]:", song$single, "by", song$artist, "\n")
+    cat("Processing [", i, "]: ", song$single, " by ", song$artist, "\n")
 
+    # First attempt using raw artist/title
     url <- tryCatch(search_song(song$single, song$artist, token), error = function(e) NA)
-    Sys.sleep(0.5)  # Respect API limits
+    Sys.sleep(0.5)
 
     lyrics <- if (!is.na(url)) tryCatch(get_clean_lyrics(url), error = function(e) NA) else NA
     Sys.sleep(0.5)
 
-    results[[i - start_row + 1]] <- song %>%
-      mutate(genius_url = url, lyrics = lyrics)
+    # Defaults
+    clean_title <- NA
+    clean_artist <- NA
+    constructed_url <- NA
+    method_used <- "original"
 
-    # Save after each row (or do batch-save every 10 rows if preferred)
-    write_csv(bind_rows(results), output_file, append = file.exists(output_file))
+    # Fallback if first attempt fails
+    if (is.na(lyrics)) {
+      clean_title <- clean_strings(as.character(song$single))
+      clean_artist <- clean_strings(as.character(song$artist))
+
+      constructed_url <- paste0("https://genius.com/", clean_artist, "-", clean_title, "-lyrics")
+      cat("First attempt failed. Trying constructed Genius URL: ", constructed_url, "\n")
+
+      lyrics <- if (is.na(url)) tryCatch(get_clean_lyrics(constructed_url), error = function(e) NA) else NA
+      Sys.sleep(0.5)
+
+      method_used <- "cleaned"
+    }
+
+    # Write result row to CSV
+    result_row <- tibble(
+      artist = song$artist,
+      single = song$single,
+      clean_artist = clean_artist,
+      clean_single = clean_title,
+      attempted_url = constructed_url,
+      genius_url = url,
+      method = method_used,
+      lyrics = lyrics
+    )
+
+    write_csv(result_row, output_file, append = file.exists(output_file))
   }
-
-  return(bind_rows(results))
 }
 
-# Example usage
-# To process the first 50 rows and save results to 'lyrics_output.csv'
-output_file <- "lyrics_output.csv"
-start_index <- 1
-end_index <- 1185  # Change this to batch size you want
 
-# Optional: Skip already processed rows
+output_file <- "final_lyrics_output.csv"
+start_index <- 1
+end_index <- 1185
+
+# Optional: skip already processed
 if (file.exists(output_file)) {
-  processed <- read_csv(output_file, show_col_types = FALSE)
-  start_index <- nrow(processed) + 1
+  music <- read_csv(output_file, show_col_types = FALSE)
+  start_index <- nrow(music) + 1
 }
 
 if (start_index <= nrow(all_number_ones)) {
-  process_batch(all_number_ones, start_index, min(end_index, nrow(all_number_ones)), genius_token, output_file)
+  process_batch_combined(all_number_ones, start_index, min(end_index, nrow(all_number_ones)), genius_token, output_file)
 } else {
   cat("All songs already processed.\n")
 }
