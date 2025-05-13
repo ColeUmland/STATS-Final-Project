@@ -485,6 +485,7 @@ avg_repetitiveness_by_year <- lyrics_df %>%
 ggplot(avg_repetitiveness_by_year, aes(x = year, y = avg_repetitive_percentage)) +
   geom_line(color = "steelblue", size = .7) +
   geom_point(color = "darkred", size = 2) +
+  geom_smooth(color = "orange", size = 1) +
   labs(
     title = "Average Song Repetitiveness by Year",
     x = "Year",
