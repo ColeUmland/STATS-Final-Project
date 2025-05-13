@@ -440,12 +440,12 @@ print(fuzzy_gg)
 The below code chunk creates a function that ultimately gets a 'unique word percentage' from the lyrics of each song. It does this by counting the total number of words, counting the number of unique words, and then dividing those counts to get the percentage. A lower percentage means a song is more repetitive while a higher 'unique word percentage' means a song is more unique and less repetitive. 
 
 ```{r}
-get_unique_word_percentage_from_text <- function(lyrics) {
+get_unique_word_percentage_from_text_but_now_repetitive_percentage_from_text <- function(lyrics) {
   if (is.na(lyrics) || lyrics == "") {
     return(tibble(
       total_words = NA_integer_,
       unique_words = NA_integer_,
-      unique_percentage = NA_real_
+      repetitive_percentage = NA_real_
     ))
   }
 
@@ -459,18 +459,18 @@ get_unique_word_percentage_from_text <- function(lyrics) {
   unique_words <- length(unique(words))
 
   if (total_words == 0) {
-    return(tibble(total_words = 0, unique_words = 0, unique_percentage = NA_real_))
+    return(tibble(total_words = 0, unique_words = 0, repetitive_percentage = NA_real_))
   }
 
   tibble(
     total_words = total_words,
     unique_words = unique_words,
-    unique_percentage = round(unique_words / total_words, 4)
+    repetitive_percentage = round((1 - (unique_words / total_words)), 4)
   )
 }
 
 lyrics_df <- lyrics_df %>%
-  mutate(stats = map(lyrics, get_unique_word_percentage_from_text)) %>%
+  mutate(stats = map(lyrics, get_unique_word_percentage_from_text_but_now_repetitive_percentage_from_text)) %>%
   unnest(stats)
 ```
 
