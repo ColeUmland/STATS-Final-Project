@@ -424,6 +424,7 @@ yearly_normalized <- lyrics_df %>%
 fuzzy_gg <- ggplot(yearly_normalized, aes(x = year, y = avg_repeats)) +
   geom_line(color = "steelblue") +
   geom_point(color = "darkred") +
+  geom_smooth(color = "orange", size = 1) +
   labs(
     title = "Fuzzy Repeats by Year: Fuzzy",
     x = "Year",
