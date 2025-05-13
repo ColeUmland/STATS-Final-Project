@@ -184,6 +184,8 @@ clean_strings <- function(string) {
 
 
 process_batch_combined <- function(data, start_row, end_row, token, output_file) {
+  results <- list()
+  
   for (i in start_row:end_row) {
     song <- data[i, ]
     cat("Processing [", i, "]: ", song$single, " by ", song$artist, "\n")
@@ -215,8 +217,7 @@ process_batch_combined <- function(data, start_row, end_row, token, output_file)
       method_used <- "cleaned"
     }
 
-    # Write result row to CSV
-    result_row <- tibble(
+   results[[length(results) + 1]] <- tibble(
       artist = song$artist,
       single = song$single,
       clean_artist = clean_artist,
@@ -226,30 +227,57 @@ process_batch_combined <- function(data, start_row, end_row, token, output_file)
       method = method_used,
       lyrics = lyrics
     )
-
-    write_csv(result_row, output_file, append = file.exists(output_file))
   }
+
+  # Write all results at once after the loop
+  result_tbl <- bind_rows(results)
+  write_csv(result_tbl, output_file, append = file.exists(output_file))
 }
 
 
-output_file <- "final_lyrics_output.csv"
-start_index <- 1
-end_index <- 1185
+# output_file <- "final_lyrics_output.csv"
+# start_index <- 1
+# end_index <- 1185
 
 # Optional: skip already processed
-if (file.exists(output_file)) {
-  music <- read_csv(output_file, show_col_types = FALSE)
-  start_index <- nrow(music) + 1
-}
+# if (file.exists(output_file)) {
+#   music <- read_csv(output_file, show_col_types = FALSE)
+#   start_index <- nrow(music) + 1
+# }
+# 
+# if (start_index <= nrow(all_number_ones)) {
+#   process_batch_combined(all_number_ones, start_index, min(end_index, nrow(all_number_ones)), genius_token, output_file)
+# } else {
+#   cat("All songs already processed.\n")
+# }
 
-if (start_index <= nrow(all_number_ones)) {
-  process_batch_combined(all_number_ones, start_index, min(end_index, nrow(all_number_ones)), genius_token, output_file)
-} else {
-  cat("All songs already processed.\n")
-}
+
+```
+#Section 3.1 Reprocessing CSV after first attempt failed after number 915
+```{r}
+temporary_file <- read_csv("final_lyrics_output.csv")
+
+trimmed_file <- temporary_file %>% slice(1:915)
+
+write_csv(trimmed_file, "lyrics_output_trimmed.csv")
+
+begin <- 916
+end <- 1185
+output_file <- "reprocessed_lyrics_output.csv"
+
+process_batch_combined(all_number_ones, begin, end, genius_token, output_file)
 ```
 
-#Section 3.1 Reading in the Data Frame
+#Section 3.2 Combining CSVs into one final file
+```{r}
+cleaned <- read_csv("lyrics_output_trimmed.csv")
+reprocessed <- read_csv("reprocessed_lyrics_output.csv")
+
+final <- bind_rows(cleaned, reprocessed)
+write_csv(final, "hopeful.csv")
+```
+
+#Section 3.3 Reading in the Data Frame
 ```{r}
 lyrics_df <- read.csv("testing.csv")
 ```
