@@ -530,11 +530,11 @@ Another method we utilized to analyze the repetitiveness of the songs was by cou
 ```{r}
 avg_stem_by_year <- lyrics_df %>%
   group_by(year) %>%
-  summarize(frequency_pct.x = 
-              mean(frequency_pct.x, na.rm = TRUE))
+  summarize(frequency_pct = 
+              mean(frequency_pct, na.rm = TRUE))
 
 
-stem_gg <- ggplot(avg_stem_by_year, mapping = aes(x = year, y = frequency_pct.x)) +
+stem_gg <- ggplot(avg_stem_by_year, mapping = aes(x = year, y = frequency_pct)) +
   geom_line(color = "steelblue", size = .7) +
   geom_point(color = "darkred", size = 2) +
   labs(
