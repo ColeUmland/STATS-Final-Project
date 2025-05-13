@@ -477,17 +477,17 @@ lyrics_df <- lyrics_df %>%
 ## Section 6.1
 
 ```{r}
-avg_unique_by_year <- lyrics_df %>%
+avg_repetitiveness_by_year <- lyrics_df %>%
   group_by(year) %>%
-  summarise(avg_unique_percentage = mean(unique_percentage, na.rm = TRUE))
+  summarise(avg_repetitive_percentage = mean(repetitive_percentage, na.rm = TRUE))
 
-ggplot(avg_unique_by_year, aes(x = year, y = avg_unique_percentage)) +
+ggplot(avg_repetitiveness_by_year, aes(x = year, y = avg_repetitive_percentage)) +
   geom_line(color = "steelblue", size = .7) +
   geom_point(color = "darkred", size = 2) +
   labs(
-    title = "Average Song Uniqueness by Year",
+    title = "Average Song Repetitiveness by Year",
     x = "Year",
-    y = "Average Unique Percentage"
+    y = "Average Repetitiveness Percentage"
   ) +
   theme_minimal()
 ```
