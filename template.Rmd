@@ -537,6 +537,7 @@ avg_stem_by_year <- lyrics_df %>%
 stem_gg <- ggplot(avg_stem_by_year, mapping = aes(x = year, y = frequency_pct)) +
   geom_line(color = "steelblue", size = .7) +
   geom_point(color = "darkred", size = 2) +
+  geom_smooth(color = "orange", size = 1) +
   labs(
     title = "Stem Average by Year",
     x = "Year",
