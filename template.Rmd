@@ -279,7 +279,7 @@ write_csv(final, "hopeful.csv")
 
 #Section 3.3 Reading in the Data Frame
 ```{r}
-lyrics_df <- read.csv("testing.csv")
+lyrics_df <- read.csv("hopeful.csv")
 ```
 
 ##Section 4 Cole Umland
