@@ -446,9 +446,12 @@ print(fuzzy_gg)
 
 ## Section 6
 
-The below code chunk creates a function that ultimately gets a 'unique word percentage' from the lyrics of each song. It does this by counting the total number of words, counting the number of unique words, and then dividing those counts to get the percentage. A lower percentage means a song is more repetitive while a higher 'unique word percentage' means a song is more unique and less repetitive. 
+The below code chunk creates a function that ultimately gets a 'repetitiveness' percentage. It does this by counting the total number of words, counting the number of unique words, and then dividing those counts to get a percentage. Since this percentage would actually be how unique a song is, we just subtracted this percentage from 1 to make it more intuitive and easier to understand on the graph. The higher this percentage is, the more repetitive a song is. 
 
 ```{r}
+# get_unique_word_percentage_from_text_but_now_repetitive_percentage_from_text: takes lyrics from a song and returns a tibble of total_words, unique_words, and repetitive percentage
+# Inputs: lyrics
+# Outputs: A tibble containing total_words, unique_words, and repetitive_percentage
 get_unique_word_percentage_from_text_but_now_repetitive_percentage_from_text <- function(lyrics) {
   if (is.na(lyrics) || lyrics == "") {
     return(tibble(
@@ -458,6 +461,7 @@ get_unique_word_percentage_from_text_but_now_repetitive_percentage_from_text <- 
     ))
   }
 
+  # Takes in all the lyrics and cleans them up due to problems we had with miscounting words
   words <- str_to_lower(lyrics) %>%
     str_replace_all("[^a-z\\s']", "") %>%  # keeps apostrophes like in "don't"
     str_split("\\s+") %>%
@@ -478,6 +482,7 @@ get_unique_word_percentage_from_text_but_now_repetitive_percentage_from_text <- 
   )
 }
 
+# Adds the tibble created from the function to the main dataframe named lyrics_df
 lyrics_df <- lyrics_df %>%
   mutate(stats = map(lyrics, get_unique_word_percentage_from_text_but_now_repetitive_percentage_from_text)) %>%
   unnest(stats)
@@ -501,6 +506,7 @@ ggplot(avg_repetitiveness_by_year, aes(x = year, y = avg_repetitive_percentage))
   ) +
   theme_minimal()
 ```
+Generally, repetitiveness increased in songs from 1958 to about 2005. There are peaks and troughs associated with different types of music that might rely more or less on lyrics. 
 
 #Section 7: Stemming
 ```{r}
