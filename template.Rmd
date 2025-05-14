@@ -1,33 +1,36 @@
 ---
 title: "Super Awesome Project Template"
-output: word_document
-names: "Caleb Bekkum, Luke Spika, Cole Umland, Charlie Wiegel"
+output:
+  html_document:
+    df_print: paged
 date: "2025-04-11"
+names: Caleb Bekkum, Luke Spika, Cole Umland, Charlie Wiegel
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-```
-
-## Section 1
-Genius API info 
-Client ID: r8BXdSiDmw9qfMoxh2S3f1g4AtvDaPf8XD-TWjkO77sc_hvsglOutM9Pl67I67Tr
-Client Secret : pvEdzTUfKqtLbjv0qdxBJrqs5Hj1JQlhf4ICcQPWp3Zfo5j7uO88_34UWDbmT5a38wZP9lrTksDX4r8csgZsVA
-Client Access Token: BoaVCPyQtW90wUPpm3lPVgm1b5AJGB0BIBvG1UO9dj473mlajOuyvJ1hrN0Dvw9G
-Nickname : Luke5pika
-
-```{r, echo = FALSE}
-
-# This code chunk is for setting up access and web-scraping song info from the Spotify API
-
+#Load in libraries
+library(SnowballC)
+library(dplyr)
+library(tidytext)
+library(stringr)
+library(tidyverse)
 library(httr)
 library(jsonlite)
 library(rvest)
-library(stringr)
 library(xml2)
+library(purrr)
+library(stringdist)
+library(ggplot2)
+library(lubridate)
+```
 
+## Section 1
+```{r, echo = FALSE}
+# This code chunk is for setting up access and web-scraping song info from the Spotify API
 # Genius API Token
 genius_token <- "BoaVCPyQtW90wUPpm3lPVgm1b5AJGB0BIBvG1UO9dj473mlajOuyvJ1hrN0Dvw9G" 
+
 # Test song
 test_title <- "Blinding Lights"
 test_artist <- "The Weeknd"
@@ -118,12 +121,6 @@ For gathering the genius URL and lyrics for all the songs we had to first gather
 ## Section 2
 
 ```{r, echo = FALSE}
-#This table is cleaned up and ready to roll.
-library(rvest)
-library(dplyr)
-library(purrr)
-library(stringr)
-
 decade_urls <- c(
   "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_from_1958_to_1969",
   "https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_of_the_1970s",
@@ -161,10 +158,6 @@ all_number_ones <- map_df(decade_urls, function(url) {
 ## Section 3 
 
 ```{r, eval=FALSE, echo = FALSE}
-
-library(tidyverse)
-
-
 #clean_strings: takes a string, in this case it is used for song title and artist name, then cleans it to a format that fits the format of the majority of the URLs found on genius.
 #Inputs: string (artist name and song title)
 #Outputs: artist name and output lowercase, special characters removed, & changed to "and" and hyphens inserted between words as they are in the genius URL
@@ -335,10 +328,6 @@ In the end, decided to determine the max distance based on the character count i
 
 ## Section 5 Cole Umland
 ```{r, message=FALSE, echo = FALSE}
-library(dplyr)
-library(purrr)
-library(stringdist)
-
 count_fuzzy_title_repeats <- function(title, lyrics_text, max_distance = NULL, ngram_window = 5) {
   if (is.na(lyrics_text) || is.null(lyrics_text)) return(NA)
   
@@ -391,11 +380,6 @@ head(lyrics_df)
 
 ##Section 5.1 Cole Umland
 ```{r, echo = FALSE}
-library(ggplot2)
-library(dplyr)
-library(stringr)
-library(lubridate)
-
 # Custom function to expand 2-digit years
 #This breaks the string into three parts
 expand_year <- function(date_str) {
@@ -428,7 +412,9 @@ yearly_normalized <- lyrics_df %>%
     song_count = n(),
     avg_repeats = total_repeats / song_count
   )
-
+```
+# Section 5.2
+```{r}
 fuzzy_gg <- ggplot(yearly_normalized, aes(x = year, y = avg_repeats)) +
   geom_line(color = "steelblue", size = .7) +
   geom_point(color = "darkred", size = 2) +
@@ -444,10 +430,9 @@ print(fuzzy_gg)
 ```
 
 
-## Section 6
-
 The below code chunk creates a function that ultimately gets a 'repetitiveness' percentage. It does this by counting the total number of words, counting the number of unique words, and then dividing those counts to get a percentage. Since this percentage would actually be how unique a song is, we just subtracted this percentage from 1 to make it more intuitive and easier to understand on the graph. The higher this percentage is, the more repetitive a song is. 
 
+## Section 6
 ```{r, echo = FALSE}
 # get_unique_word_percentage_from_text_but_now_repetitive_percentage_from_text: takes lyrics from a song and returns a tibble of total_words, unique_words, and repetitive percentage
 # Inputs: lyrics
@@ -489,8 +474,8 @@ lyrics_df <- lyrics_df %>%
 ```
 
 ## Section 6.1
-
 ```{r, echo = FALSE}
+#Graph the repetitiveness by year, looking at unique words
 avg_repetitiveness_by_year <- lyrics_df %>%
   group_by(year) %>%
   summarise(avg_repetitive_percentage = mean(repetitive_percentage, na.rm = TRUE))
@@ -510,12 +495,6 @@ Generally, repetitiveness increased in songs from 1958 to about 2005. There are 
 
 #Section 7: Stemming
 ```{r, echo = FALSE}
-library(SnowballC)
-library(dplyr)
-library(tidytext)
-library(stringr)
-
-
 #get_top_stems: takes the lyrics data and finds the most common stem, also calculates the percentage of all the words the stems make up
 #inputs: lyrics data frame
 #Outputs: list of top stems and the percentages
@@ -555,6 +534,7 @@ head(lyrics_df)
 Another method we utilized to analyze the repetitiveness of the songs was by counting the number of similar words present in each song and looking at the percentage of each song's lyrics these similar words accounted for. The technique we used is called Stemming, in which each word is reduced to its root form or stem and then the number of these matching stems was analyzed. For example, 'run,' 'running,' and 'ran,' would all be reduced to just 'run' and then counted as three instances of this stem appearing in the lyrics of a song. The songs that have higher percentages of repeated stems are then seen as the more repetitive songs. 
 #Section 7.1
 ```{r, echo = FALSE}
+#Graph stemming data by year
 avg_stem_by_year <- lyrics_df %>%
   group_by(year) %>%
   summarize(frequency_pct = 
