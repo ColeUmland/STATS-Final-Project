@@ -575,4 +575,4 @@ stem_gg <- ggplot(avg_stem_by_year, mapping = aes(x = year, y = frequency_pct)) 
 print(stem_gg)
 ```
 
-
+In the stem average by year, the graph is showing that over the years songs have become less repetitive. Depending on the year the graph may be in a peak or a trough, but the line of best fit shows the gradual decline in repetitiveness.
