@@ -112,9 +112,8 @@ In order to format the lyrics in an easy to use way, certain things that were sc
 
 To gather all the songs that were billboard top 100 hits, we found Wikipedia links that gathered the ‘top 100 number 1 singles’ by decades from 1958 to present day, grouping 1958 to 1969, the 1970s, 1980s, etc. From those links we scraped the artist, title, and date of the songs. We had some struggle keeping the row for the dates of the songs but eventually found something clever that worked. 
 
-For gathering the genius URL and lyrics for all the songs we had to first gather a genius API token to be able to access the genius website. Once we had that, we created a function called ‘search_song’ which would take the artist, name of the song, and genius token which would give out the URL and lyrics of the song back to us. From there we created a function called ‘get_lyrics_clean’ which would then take the genius URL and give back a cleaned-up (getting rid of the weird formatting and extra labels of the lyrics from genius) version of the lyrics in one line. 
+For gathering the genius URL and lyrics for all the songs we had to first gather a genius API token to be able to access the genius website. Once we had that, we created a function called ‘search_song’ which would take the artist, name of the song, and genius token which would give out the URL and lyrics of the song back to us. From there we used the function ‘get_lyrics_clean’ to take the genius URL and give back a cleaned-up version of the lyrics in one line without extra information that was scraped from Genius. 
 
-To create the table which included artists, song, date, genius URL, and lyrics we created a function called ‘process_batch’ which took the song, scraped the genius URL of the song, and then put the lyrics of the song through the ‘get_clean_lyrics’ function for all 1,185 songs. Running this took a long time, so we decided that instead of everyone having to run the code, we would turn the table into a csv file and call the csv file when we needed it. 
 
 ## Section 2
 
@@ -165,6 +164,10 @@ all_number_ones <- map_df(decade_urls, function(url) {
 
 library(tidyverse)
 
+
+#clean_strings: takes a string, in this case it is used for song title and artist name, then cleans it to a format that fits the format of the majority of the URLs found on genius.
+#Inputs: string (artist name and song title)
+#Outputs: artist name and output lowercase, special characters removed, & changed to "and" and hyphens inserted between words as they are in the genius URL
 clean_strings <- function(string) {
   string <- tolower(string)
   string <- gsub("&", " and ", string)
@@ -183,6 +186,9 @@ clean_strings <- function(string) {
 }
 
 
+#Process_batch_combined: processes songs from table and retrieves info such as cleaned song lyrics. Two methods, primary method and backup method which manually constructs genius url for special cases
+#Inputs: data - data frame of songs; start_row - index of the first row to begin processing; end_row - index of the last row to process; output_file - empty csv to fill with data
+#Outputs: CSV file with song title, artist name, Genius URL, clean lyrics
 process_batch_combined <- function(data, start_row, end_row, token, output_file) {
   results <- list()
   
@@ -253,6 +259,8 @@ process_batch_combined <- function(data, start_row, end_row, token, output_file)
 
 
 ```
+To create one large data file to hold the information we required to analyze these songs, we used a number of functions that would scrape Genius and give us the lyrics we were trying to analyze. This function is called 'process_batch_combined' and it is the combination of two initial attempts at generating genius URLs and scraping the song lyrics using them. This function uses a primary method and a backup method to capture as many lyrics as possible. If the initial method fails to generate a viable genius URL, which often happens due to inconsistencies between the song title listed and the song title present in the URL for example, then a secondary method takes place which removes any special characters, parentheses, numbers etc from the artist name and the song title then manually constructs a URL in the format of the majority of genius URLs, then uses this to attempt to scrape the lyrics from Genius. After this is done, the function 'get_clean_lyrics' is called to transform the lyrics into a usable format and then this function constructs a CSV file with the needed information to complete our analysis.
+
 #Section 3.1 Reprocessing CSV after first attempt failed after number 915
 ```{r}
 temporary_file <- read_csv("final_lyrics_output.csv")
