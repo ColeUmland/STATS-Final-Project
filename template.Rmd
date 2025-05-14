@@ -16,7 +16,7 @@ Client Secret : pvEdzTUfKqtLbjv0qdxBJrqs5Hj1JQlhf4ICcQPWp3Zfo5j7uO88_34UWDbmT5a3
 Client Access Token: BoaVCPyQtW90wUPpm3lPVgm1b5AJGB0BIBvG1UO9dj473mlajOuyvJ1hrN0Dvw9G
 Nickname : Luke5pika
 
-```{r}
+```{r, echo = FALSE}
 
 # This code chunk is for setting up access and web-scraping song info from the Spotify API
 
@@ -117,7 +117,7 @@ For gathering the genius URL and lyrics for all the songs we had to first gather
 
 ## Section 2
 
-```{r Cole Umland}
+```{r, echo = FALSE}
 #This table is cleaned up and ready to roll.
 library(rvest)
 library(dplyr)
@@ -160,7 +160,7 @@ all_number_ones <- map_df(decade_urls, function(url) {
 
 ## Section 3 
 
-```{r, eval=FALSE}
+```{r, eval=FALSE, echo = FALSE}
 
 library(tidyverse)
 
@@ -262,7 +262,7 @@ process_batch_combined <- function(data, start_row, end_row, token, output_file)
 To create one large data file to hold the information we required to analyze these songs, we used a number of functions that would scrape Genius and give us the lyrics we were trying to analyze. This function is called 'process_batch_combined' and it is the combination of two initial attempts at generating genius URLs and scraping the song lyrics using them. This function uses a primary method and a backup method to capture as many lyrics as possible. If the initial method fails to generate a viable genius URL, which often happens due to inconsistencies between the song title listed and the song title present in the URL for example, then a secondary method takes place which removes any special characters, parentheses, numbers etc from the artist name and the song title then manually constructs a URL in the format of the majority of genius URLs, then uses this to attempt to scrape the lyrics from Genius. After this is done, the function 'get_clean_lyrics' is called to transform the lyrics into a usable format and then this function constructs a CSV file with the needed information to complete our analysis.
 
 #Section 3.1 Reprocessing CSV after first attempt failed after number 915
-```{r}
+```{r, eval = FALSE, echo = FALSE}
 temporary_file <- read_csv("final_lyrics_output.csv")
 
 trimmed_file <- temporary_file %>% slice(1:915)
@@ -277,7 +277,7 @@ process_batch_combined(all_number_ones, begin, end, genius_token, output_file)
 ```
 
 #Section 3.2 Combining CSVs into one final file
-```{r}
+```{r, echo = FALSE}
 cleaned <- read_csv("lyrics_output_trimmed.csv")
 reprocessed <- read_csv("reprocessed_lyrics_output.csv")
 
@@ -286,7 +286,7 @@ write_csv(final, "hopeful.csv")
 ```
 
 #Section 3.3 Reading in the Data Frame
-```{r}
+```{r, echo = FALSE}
 lyrics_df <- read.csv("hopeful.csv")
 ```
 
@@ -334,7 +334,7 @@ To determine how close the title had to be in the lyrics to count as a repetitio
 In the end, decided to determine the max distance based on the character count in the title of each single. This was to directly combat a static max distance and the impact it had on miscounting songs with short titles. If the title has four or less characters, there can be no typos for it to count as a as a repeat. For songs with 7 or less characters, we set a max distance of 2, and for everything else, a max distance of 4.
 
 ## Section 5 Cole Umland
-```{r, message=FALSE}
+```{r, message=FALSE, echo = FALSE}
 library(dplyr)
 library(purrr)
 library(stringdist)
@@ -390,7 +390,7 @@ head(lyrics_df)
 ```
 
 ##Section 5.1 Cole Umland
-```{r}
+```{r, echo = FALSE}
 library(ggplot2)
 library(dplyr)
 library(stringr)
@@ -448,7 +448,7 @@ print(fuzzy_gg)
 
 The below code chunk creates a function that ultimately gets a 'repetitiveness' percentage. It does this by counting the total number of words, counting the number of unique words, and then dividing those counts to get a percentage. Since this percentage would actually be how unique a song is, we just subtracted this percentage from 1 to make it more intuitive and easier to understand on the graph. The higher this percentage is, the more repetitive a song is. 
 
-```{r}
+```{r, echo = FALSE}
 # get_unique_word_percentage_from_text_but_now_repetitive_percentage_from_text: takes lyrics from a song and returns a tibble of total_words, unique_words, and repetitive percentage
 # Inputs: lyrics
 # Outputs: A tibble containing total_words, unique_words, and repetitive_percentage
@@ -490,7 +490,7 @@ lyrics_df <- lyrics_df %>%
 
 ## Section 6.1
 
-```{r}
+```{r, echo = FALSE}
 avg_repetitiveness_by_year <- lyrics_df %>%
   group_by(year) %>%
   summarise(avg_repetitive_percentage = mean(repetitive_percentage, na.rm = TRUE))
@@ -509,7 +509,7 @@ ggplot(avg_repetitiveness_by_year, aes(x = year, y = avg_repetitive_percentage))
 Generally, repetitiveness increased in songs from 1958 to about 2005. There are peaks and troughs associated with different types of music that might rely more or less on lyrics. 
 
 #Section 7: Stemming
-```{r}
+```{r, echo = FALSE}
 library(SnowballC)
 library(dplyr)
 library(tidytext)
@@ -554,7 +554,7 @@ head(lyrics_df)
 ```
 Another method we utilized to analyze the repetitiveness of the songs was by counting the number of similar words present in each song and looking at the percentage of each song's lyrics these similar words accounted for. The technique we used is called Stemming, in which each word is reduced to its root form or stem and then the number of these matching stems was analyzed. For example, 'run,' 'running,' and 'ran,' would all be reduced to just 'run' and then counted as three instances of this stem appearing in the lyrics of a song. The songs that have higher percentages of repeated stems are then seen as the more repetitive songs. 
 #Section 7.1
-```{r}
+```{r, echo = FALSE}
 avg_stem_by_year <- lyrics_df %>%
   group_by(year) %>%
   summarize(frequency_pct = 
