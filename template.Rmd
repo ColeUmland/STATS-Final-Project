@@ -576,3 +576,6 @@ print(stem_gg)
 ```
 
 In the stem average by year, the graph is showing that over the years songs have become less repetitive. Depending on the year the graph may be in a peak or a trough, but the line of best fit shows the gradual decline in repetitiveness.
+
+OVERALL REPORT
+Generally, songs have become more slightly more repetitive, especially from 1958 to around 2005. The results from the fuzzy measure of repetitiveness, as well as the unique words measure, generally show the same thing. This is due to the fact that if a song has a high amount of repeating words from its title, it is likely to just have a higher overall of repetitiveness. In the measure of repetitiveness using stemming, the graph seems to display a general decrease. This is due, in part, to the y-axis having a significantly shorter range than fuzzy and unique words, so change is dramatized more. In addition, the stemming process reduces multiple words to one stem, while the unique words looks at every single word. Overall, there is a general increase in repetitiveness of songs from about 1958 to around 2005, with a slight decrease in years afterwards. This conclusion slightly differs depending on the measure of repetitiveness used. 
