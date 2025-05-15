@@ -435,7 +435,7 @@ print(fuzzy_gg)
 The below code chunk creates a function that ultimately gets a 'repetitiveness' percentage. It does this by counting the total number of words, counting the number of unique words, and then dividing those counts to get a percentage. Since this percentage would actually be how unique a song is, we just subtracted this percentage from 1 to make it more intuitive and easier to understand on the graph. The higher this percentage is, the more repetitive a song is. 
 
 ## Section 6: Unique Words
-```{r, echo = FALSE}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # get_unique_word_percentage_from_text_but_now_repetitive_percentage_from_text: takes lyrics from a song and returns a tibble of total_words, unique_words, and repetitive percentage
 # Inputs: lyrics
 # Outputs: A tibble containing total_words, unique_words, and repetitive_percentage
@@ -562,10 +562,13 @@ print(stem_gg)
 In the stem average by year, the graph is showing that over the years songs have become less repetitive. Depending on the year the graph may be in a peak or a trough, but the line of best fit shows the gradual decline in repetitiveness.
 
 LIMITATIONS
+
 Through completing this project we faced a few limitations. After making the table through the Wikipedia links, we were missing all the dates from 2000 to 2010. To navigate this we manually entered this information into the csv file before using it down the road. Our greatest limitation was the difficulty in calling song urls and lyrics into our main table. Many song titles from Wikipedia (25%), didn't match the song titles in Genius html. To combat this we made a new function (Section 3), to filled these voids of information in our table by navigating around special character discrepancies, either in Genius or Wikipedia. We dropped our statistical malpractice from a 25% NA count to just 9%. We didn't go any further than this as we felt any further time spent would see less pay off than if we worked on other parts of the project.
 
 IN THE FUTURE
+
 If we were to continue working on this project, we would work through a few routes. If we could expand the songs to more than just the top song of the time, would give us a better feel for trends than we had. Seeing only the top songs, although it is what is popular at the time, lessened our sense of feel on overall trends. We could've also expanded our songs by reducing our NA count in our table as aforementioned. Another way we would further our work would be to look into our graphs and data and see if the findings are significant enough to reduce any conclusions. Finally, if we had the access to the built in R table on this information (audio_feature.csv and billboard.csv), to reduce our time spent on creating a table ourselves.
 
 OVERALL REPORT
+
 Generally, songs have become slightly more repetitive, especially from 1958 to around 2005. The results from the fuzzy measure of repetitiveness, as well as the unique words measure, generally show the same thing. This is due to the fact that if a song has a high amount of repeating words from its title, it is likely to have a higher overall repetitiveness. In the measure of repetitiveness using stemming, the graph seems to display a general decrease. This is due, in part, to the y-axis having a significantly shorter range than fuzzy and unique words, so change is dramatized more. In addition, the stemming process reduces multiple words to one stem then only counts the most common stem leaving out the rest of the words, while the unique words looks at every single word. If the stemming method took more words into account it may have found different results. Overall, there is a general increase in repetitiveness of songs from about 1958 to around 2005, followed by a slight decrease in years afterwards, but still remaining overall more repetitive than the inauguration of the billboard hot 100 in 1958. This conclusion differs slightly depending on the measure of repetitiveness used and could be more conclusive with a larger data set. 
