@@ -1,11 +1,14 @@
 ---
-title: "Super Awesome Project Template"
+title: "Billboard Top Song Repitition Over Time"
 output:
   html_document:
     df_print: paged
 date: "2025-04-11"
 names: Caleb Bekkum, Luke Spika, Cole Umland, Charlie Wiegel
 ---
+Have the most popular songs gotten more repetitive over time? Since 1958 and the birth of the Billboard TOP 100 the most popular songs around the globe have been ranked by their popularity. This catalyzed monetary funding into the music industry and gave the most dedicated artist a ladder to time to the top of. In this wake of popularity it was inevitable that some artist would cheat their craft for the sake of public opinion and thus the inevitable, song repetition.
+
+Using the vast array of websites with these tops song's information our group tested to see if a trend of repetitiveness was as easy to spot as we imagined. By taking this data, we tested to see if titles themselves were repeated in the lyrics. Filling a song with its title was an immediate inference we made as many of the most popular songs we know utilize their titles to catch the listener's ears. Another test was on the lyrics themselves, testing to see if one word stood out within each song, or if songs had less unique words than their competition. These three methods were the means of our testing and our roadmap of our choices we made along the way. 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -113,10 +116,7 @@ get_clean_lyrics <- function(url) {
 ```
 In order to format the lyrics in an easy to use way, certain things that were scraped from the Genius website had to be removed, for example, messages marking the start of a new verse or chorus were present and are not a part of the actual lyrics so they had to be removed. Another problem that we ran into was a formatting issues when the lyrics started a new line on Genius. When this happened, a space was not present between the end of the first line and the start of the second. Other issues included trouble when special characters or punctuation were present. In order to fix all of these issues to make the 'get_clean_lyrics()' function as universal as possible, the best method we found was to tackle the problems one at a time and continually test a variety of songs to make sure the lyrics of each came out clean and usable for future analysis. 
 
-To gather all the songs that were billboard top 100 hits, we found Wikipedia links that gathered the ‘top 100 number 1 singles’ by decades from 1958 to present day, grouping 1958 to 1969, the 1970s, 1980s, etc. From those links we scraped the artist, title, and date of the songs. We had some struggle keeping the row for the dates of the songs but eventually found something clever that worked. 
-
 For gathering the genius URL and lyrics for all the songs we had to first gather a genius API token to be able to access the genius website. Once we had that, we created a function called ‘search_song’ which would take the artist, name of the song, and genius token which would give out the URL and lyrics of the song back to us. From there we used the function ‘get_lyrics_clean’ to take the genius URL and give back a cleaned-up version of the lyrics in one line without extra information that was scraped from Genius. 
-
 
 ## Section 2: Birth of the table
 
@@ -154,6 +154,8 @@ all_number_ones <- map_df(decade_urls, function(url) {
 })
 
 ```
+
+To gather all the songs that were billboard top 100 hits, we found Wikipedia links that gathered the ‘top 100 number 1 singles’ by decades from 1958 to present day, grouping 1958 to 1969, the 1970s, 1980s, etc. From those links we scraped the artist, title, and date of the songs. 
 
 ## Section 3: Processing songs into the table
 
@@ -371,9 +373,7 @@ lyrics_df <- lyrics_df %>%
       error = function(e) NA
     ))
   )
-# View songs with high repetition
-#This reads the top songs with higher repetition first, and the rest in descending order. May not be needed in the future
-lyrics_df %>% arrange(desc(fuzzy_repeats))
+
 ```
 
 ##Section 5.1: Adjusting the Table
@@ -412,7 +412,7 @@ yearly_normalized <- lyrics_df %>%
   )
 ```
 # Section 5.2: Fuzzy Visualization
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 fuzzy_gg <- ggplot(yearly_normalized, aes(x = year, y = avg_repeats)) +
   geom_line(color = "steelblue", size = .7) +
   geom_point(color = "darkred", size = 2) +
@@ -472,7 +472,7 @@ lyrics_df <- lyrics_df %>%
 ```
 
 ## Section 6.1: Visualizing Unique Words
-```{r, echo = FALSE}
+```{r, echo = FALSE, warning = FALSE}
 #Graph the repetitiveness by year, looking at unique words
 avg_repetitiveness_by_year <- lyrics_df %>%
   group_by(year) %>%
@@ -531,7 +531,7 @@ head(lyrics_df)
 ```
 Another method we utilized to analyze the repetitiveness of the songs was by counting the number of similar words present in each song and looking at the percentage of each song's lyrics these similar words accounted for. The technique we used is called Stemming, in which each word is reduced to its root form or stem and then the number of these matching stems was analyzed. For example, 'run,' 'running,' and 'ran,' would all be reduced to just 'run' and then counted as three instances of this stem appearing in the lyrics of a song. The songs that have higher percentages of repeated stems are then seen as the more repetitive songs. 
 #Section 7.1: Visualizing Stemming
-```{r, echo = FALSE}
+```{r, echo = FALSE, warning = FALSE}
 #Graph stemming data by year
 avg_stem_by_year <- lyrics_df %>%
   group_by(year) %>%
