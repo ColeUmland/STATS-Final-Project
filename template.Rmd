@@ -25,7 +25,7 @@ library(ggplot2)
 library(lubridate)
 ```
 
-## Section 1
+## Section 1: Functions to call songs
 ```{r, echo = FALSE}
 # This code chunk is for setting up access and web-scraping song info from the Spotify API
 # Genius API Token
@@ -118,7 +118,7 @@ To gather all the songs that were billboard top 100 hits, we found Wikipedia lin
 For gathering the genius URL and lyrics for all the songs we had to first gather a genius API token to be able to access the genius website. Once we had that, we created a function called ‘search_song’ which would take the artist, name of the song, and genius token which would give out the URL and lyrics of the song back to us. From there we used the function ‘get_lyrics_clean’ to take the genius URL and give back a cleaned-up version of the lyrics in one line without extra information that was scraped from Genius. 
 
 
-## Section 2
+## Section 2: Birth of the table
 
 ```{r, echo = FALSE}
 decade_urls <- c(
@@ -155,7 +155,7 @@ all_number_ones <- map_df(decade_urls, function(url) {
 
 ```
 
-## Section 3 
+## Section 3: Processing songs into the table
 
 ```{r, eval=FALSE, echo = FALSE}
 #clean_strings: takes a string, in this case it is used for song title and artist name, then cleans it to a format that fits the format of the majority of the URLs found on genius.
@@ -283,7 +283,7 @@ write_csv(final, "hopeful.csv")
 lyrics_df <- read.csv("hopeful.csv")
 ```
 
-##Section 4 Cole Umland
+##Section 4: Identifying Repetition Malpractice
 ```{r, echo=FALSE}
 # Count how many times the title appears in the lyrics (case-insensitive)
 count_title_repeats <- function(title, lyrics) {
@@ -326,7 +326,7 @@ To determine how close the title had to be in the lyrics to count as a repetitio
 
 In the end, decided to determine the max distance based on the character count in the title of each single. This was to directly combat a static max distance and the impact it had on miscounting songs with short titles. If the title has four or less characters, there can be no typos for it to count as a as a repeat. For songs with 7 or less characters, we set a max distance of 2, and for everything else, a max distance of 4.
 
-## Section 5 Cole Umland
+## Section 5: Fuzzy
 ```{r, message=FALSE, echo = FALSE}
 count_fuzzy_title_repeats <- function(title, lyrics_text, max_distance = NULL, ngram_window = 5) {
   if (is.na(lyrics_text) || is.null(lyrics_text)) return(NA)
@@ -378,7 +378,7 @@ lyrics_df %>% arrange(desc(fuzzy_repeats)) %>% head(10)
 head(lyrics_df)
 ```
 
-##Section 5.1 Cole Umland
+##Section 5.1: Adjusting the Table
 ```{r, echo = FALSE}
 # Custom function to expand 2-digit years
 #This breaks the string into three parts
@@ -413,7 +413,7 @@ yearly_normalized <- lyrics_df %>%
     avg_repeats = total_repeats / song_count
   )
 ```
-# Section 5.2
+# Section 5.2: Fuzzy Visualization
 ```{r}
 fuzzy_gg <- ggplot(yearly_normalized, aes(x = year, y = avg_repeats)) +
   geom_line(color = "steelblue", size = .7) +
@@ -432,7 +432,7 @@ print(fuzzy_gg)
 
 The below code chunk creates a function that ultimately gets a 'repetitiveness' percentage. It does this by counting the total number of words, counting the number of unique words, and then dividing those counts to get a percentage. Since this percentage would actually be how unique a song is, we just subtracted this percentage from 1 to make it more intuitive and easier to understand on the graph. The higher this percentage is, the more repetitive a song is. 
 
-## Section 6
+## Section 6: Unique Words
 ```{r, echo = FALSE}
 # get_unique_word_percentage_from_text_but_now_repetitive_percentage_from_text: takes lyrics from a song and returns a tibble of total_words, unique_words, and repetitive percentage
 # Inputs: lyrics
@@ -473,7 +473,7 @@ lyrics_df <- lyrics_df %>%
   unnest(stats)
 ```
 
-## Section 6.1
+## Section 6.1: Visualizing Unique Words
 ```{r, echo = FALSE}
 #Graph the repetitiveness by year, looking at unique words
 avg_repetitiveness_by_year <- lyrics_df %>%
@@ -532,7 +532,7 @@ lyrics_df <- lyrics_df %>%
 head(lyrics_df)
 ```
 Another method we utilized to analyze the repetitiveness of the songs was by counting the number of similar words present in each song and looking at the percentage of each song's lyrics these similar words accounted for. The technique we used is called Stemming, in which each word is reduced to its root form or stem and then the number of these matching stems was analyzed. For example, 'run,' 'running,' and 'ran,' would all be reduced to just 'run' and then counted as three instances of this stem appearing in the lyrics of a song. The songs that have higher percentages of repeated stems are then seen as the more repetitive songs. 
-#Section 7.1
+#Section 7.1: Visualizing Stemming
 ```{r, echo = FALSE}
 #Graph stemming data by year
 avg_stem_by_year <- lyrics_df %>%
@@ -556,6 +556,12 @@ print(stem_gg)
 ```
 
 In the stem average by year, the graph is showing that over the years songs have become less repetitive. Depending on the year the graph may be in a peak or a trough, but the line of best fit shows the gradual decline in repetitiveness.
+
+LIMITATIONS
+Through completing this project we faced a few limitations. After making the table through the Wikipedia links, we were missing all the dates from 2000 to 2010. To navigate this we manually entered this information into the csv file before using it down the road. Our greatest limitation was the difficulty in calling song urls and lyrics into our main table. Many song titles from Wikipedia (25%), didn't match the song titles in Genius html. To combat this we made a new function (Section 3), to filled these voids of information in our table by navigating around special character discrepancies, either in Genius or Wikipedia. We dropped our statistical malpractice from a 25% NA count to just 9%. We didn't go any further than this as we felt any further time spent would see less pay off than if we worked on other parts of the project.
+
+In the future
+If we were to continue working on this project, we would work through a few routes. If we could expand the songs to more than just the top song of the time, would give us a better feel for trends than we had. Seeing only the top songs, although it is what is popular at the time, lessened our sense of feel on overall trends. We couldv'e also expanded our songs by reducing our NA count in our table as aforementioned. Another way we would further our work would be to look into our graphs and data and see if the findings are significant enough to reduce any conclusions. Finally, if we had the access to the built in R table on this information (audio_feature.csv and billboard.csv), to reduce our time spent on creating a table ourselves.
 
 OVERALL REPORT
 Generally, songs have become slightly more repetitive, especially from 1958 to around 2005. The results from the fuzzy measure of repetitiveness, as well as the unique words measure, generally show the same thing. This is due to the fact that if a song has a high amount of repeating words from its title, it is likely to have a higher overall repetitiveness. In the measure of repetitiveness using stemming, the graph seems to display a general decrease. This is due, in part, to the y-axis having a significantly shorter range than fuzzy and unique words, so change is dramatized more. In addition, the stemming process reduces multiple words to one stem then only counts the most common stem leaving out the rest of the words, while the unique words looks at every single word. If the stemming method took more words into account it may have found different results. Overall, there is a general increase in repetitiveness of songs from about 1958 to around 2005, followed by a slight decrease in years afterwards, but still remaining overall more repetitive than the inauguration of the billboard hot 100 in 1958. This conclusion differs slightly depending on the measure of repetitiveness used and could be more conclusive with a larger data set. 
