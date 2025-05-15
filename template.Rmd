@@ -238,7 +238,7 @@ process_batch_combined <- function(data, start_row, end_row, token, output_file)
  start_index <- 1
   end_index <- 915
 
- Optional: skip already processed
+ #Optional: skip already processed
  if (file.exists(output_file)) {
    music <- read_csv(output_file, show_col_types = FALSE)
    start_index <- nrow(music) + 1
